@@ -7,7 +7,7 @@ import heartIcon from '../../src/assets/connections_heart_icon.png';
 import styles from './styles';
 import { Link } from 'expo-router';
 
-const Index = () => {
+const Home = () => {
   const [conections, setConections] = useState(285); 
   return (
     <View style={styles.container}>
@@ -39,8 +39,8 @@ const Index = () => {
             Total de {conections} conexões já realizadas {' '}
             <Image source={heartIcon}/>
         </Text>
-        <Link href={{ pathname: 'Example' }} style={styles.linkAppInfo}>Veja mais</Link>
+        <Link href={{ pathname: 'Metrics' }} style={styles.linkAppInfo}>Veja mais</Link>
     </View>
   );
 };
-export default Index;
+export default Home;
