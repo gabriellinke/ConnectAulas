@@ -6,7 +6,6 @@ import giveClassesIcon from '../../src/assets/give_classes_icon.png';
 import heartIcon from '../../src/assets/connections_heart_icon.png';
 import styles from './styles';
 import { Link } from 'expo-router';
-import Input from "../../src/components/Input";
 
 const Home = () => {
   const [conections, setConections] = useState(285); 
