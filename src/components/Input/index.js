@@ -3,10 +3,11 @@ import styles from './styles';
 import * as Colors from '../../styles/colors'
 
 const Input = ({
-    placeholder = 'Placeholder',
-    label = 'label',
+    placeholder = "",
+    label = "label",
     value = "",
     setValue = () => {},
+    isPassword = false,
 }) => {
   return (
     <View>
@@ -17,6 +18,7 @@ const Input = ({
             placeholderTextColor={`${Colors.TEXT_INPUTS}`}
             value={value}
             onChangeText={text => setValue(text)}
+            secureTextEntry={isPassword}
         />
     </View>
   );

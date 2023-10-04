@@ -22,13 +22,13 @@ const Home = () => {
         </Text>
 
         <View style={styles.buttonsContainer}>
-          <Link href={{ pathname: 'Example' }} style={[styles.button, styles.buttonPrimary]}>
+          <Link href={{ pathname: 'Login', params: {value: 'study'}}} style={[styles.button, styles.buttonPrimary]}>
             <View style={styles.buttonLayout}>
               <Image source={studyIcon}/>
               <Text style={styles.buttonText}>Estudar</Text>
             </View>
           </Link>
-            <Link href={{ pathname: 'Example' }} style={[styles.button, styles.buttonSecondary]}>
+            <Link href={{ pathname: 'Login', params: {value: 'teach'}}} style={[styles.button, styles.buttonSecondary]}>
               <View style={styles.buttonLayout}>
                 <Image source={giveClassesIcon}/>
                 <Text style={styles.buttonText}>Dar aulas</Text>
