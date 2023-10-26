@@ -20,6 +20,22 @@ const styles = StyleSheet.create({
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'space-between',
+    },
+    subtitle: {
+        color: Colors.TEXT_IN_PURPLE_BASE,
+        fontSize: 14,
+        lineHeight: 20,
+        fontWeight: '400',
+    },
+    cameraContainer: {
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 32,
+    },
+    camera: {
+        height: 240,
+        width: 240,
     }
   });
   

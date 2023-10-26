@@ -3,7 +3,6 @@ import * as Colors from '../../styles/colors'
 
 const styles = StyleSheet.create({
     input: {
-        height: 54,
         backgroundColor: Colors.SHAPES_02,
         borderRadius: 8,
         justifyContent: 'center',
