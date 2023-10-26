@@ -10,9 +10,9 @@ const Teacher = () => {
     return (
         <View>
             <Text style={[styles.title, {marginTop: 16}]}>
-                Entre como {'\n'}Professor
+                Cadastre-se como {'\n'}Professor
             </Text>
-            <View>
+            <View style={{marginTop: 80}}>
                 <Input label="Email" value={email} setValue={setEmail}/>
                 <Input label="Senha" value={password} setValue={setPassword} isPassword/>
             </View>

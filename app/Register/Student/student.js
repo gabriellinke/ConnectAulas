@@ -8,27 +8,32 @@ import Button from "../../../src/components/Button";
 const Student = () => {
     const [email, setEmail] = useState();
     const [password, setPassword] = useState();
+    const [name, setName] = useState();
+
+    const handleAccountCreation = () => {
+        console.log("Cadastro do aluno");
+        // TODO: validar inputs
+        // Enviar requisição para o backend
+        // Mostrar mensagem de cadastro concluído
+        router.back();
+    }
+
     return (
         <View>
             <Text style={[styles.title, {marginTop: 16}]}>
-                Entre como {'\n'}Aluno
+                Cadastre-se como {'\n'}Aluno
             </Text>
-            <View>
-                <Input label="Email" value={email} setValue={setEmail}/>
-                <Input label="Senha" value={password} setValue={setPassword} isPassword/>
+            <View style={{marginTop: 80}}>
+                <Input label="Email*" value={email} setValue={setEmail}/>
+                <Input label="Senha*" value={password} setValue={setPassword} isPassword/>
+                <Input label="Nome*" value={name} setValue={setName}/>
                 <View style={[styles.buttonGroup, {marginTop: 16}]}>
-                    <Button 
-                        text="Cadastrar" 
-                        width={'48%'} 
-                        height={56} 
-                        type={"purple"}
-                        onPress={() => router.push('Metrics')}
-                    />
                     <Button
-                        text="Entrar"
-                        width={'48%'} 
+                        text="Criar cadastro"
+                        width={'100%'} 
                         height={56} 
-                        type={"green"} 
+                        type={"green"}
+                        onPress={handleAccountCreation}
                     />
                 </View>
             </View>
