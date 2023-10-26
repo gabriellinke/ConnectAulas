@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, ToastAndroid } from "react-native";
 import styles from '../styles';
 import * as Colors from '../../../src/styles/colors'
 import { Camera, CameraType } from 'expo-camera';
@@ -33,7 +33,7 @@ const Teacher = () => {
             setTakingPhoto(true);
             console.log("Permissão de câmera concedida!");
         } else {
-            // TODO: Adicionar mensagem de erro
+            ToastAndroid.show('Permissão não concedida. Você não poderá tirar fotos!', ToastAndroid.LONG)
             console.log("Você não poderá tirar fotos sem conceder permissão");
             // Permission denied
         }
@@ -51,21 +51,21 @@ const Teacher = () => {
         switch(page) {
             case 1:
                 if(email == "" || password == ""){
-                    // TODO: Handle input inválido
+                    ToastAndroid.show('Inputs inválidos!', ToastAndroid.LONG)
                     console.log("Erro: Input não é válido");
                     return;
                 }
                 break;
             case 2:
                 if(name == "" || phone == "" || biography == ""){
-                    // TODO: Handle input inválido
+                    ToastAndroid.show('Inputs inválidos!', ToastAndroid.LONG)
                     console.log("Erro: Input não é válido");
                     return;
                 }
                 break;
             case 3:
                 if(!photo){
-                    // TODO: Handle input inválido
+                    ToastAndroid.show('Inputs inválidos! Foto é necessária', ToastAndroid.LONG)
                     console.log("Erro: Input não é válido - você precisa tirar uma foto")
                     return;
                 }
@@ -73,6 +73,7 @@ const Teacher = () => {
             case 4:
                 break;
             case 5:
+                handleAccountCreation();
                 break;
             default:
                 console.log("Erro: Tela inválida")
@@ -155,7 +156,7 @@ const Teacher = () => {
                                     <Camera style={styles.camera} type={type} ref={cameraRef}>
                                         <View >
                                             <TouchableOpacity onPress={toggleCameraType}>
-                                                <Text style={{color: Colors.SHAPES_01}}>Flip Camera</Text>
+                                                <Text style={{color: Colors.SHAPES_01}}>Virar Câmera</Text>
                                             </TouchableOpacity>
                                         </View>
                                     </Camera>
@@ -182,7 +183,7 @@ const Teacher = () => {
                                     width={'100%'} 
                                     height={56} 
                                     type={"purple"}
-                                    onPress={getCameraPermission}
+                                    onPress={() => {getCameraPermission(), setPhoto(null)}}
                                 />
                             </>
                         ) : (
@@ -256,7 +257,7 @@ const Teacher = () => {
                                 width={'48%'} 
                                 height={56} 
                                 type={"green"}
-                                onPress={handleAccountCreation}
+                                onPress={() => validateInputAndAdvance(page)}
                             />
                         </View>
                     </View>
