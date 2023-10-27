@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, ToastAndroid } from "react-native";
 import styles from '../styles';
 import * as Colors from '../../../src/styles/colors'
@@ -6,6 +6,7 @@ import { Camera, CameraType } from 'expo-camera';
 import { router } from 'expo-router';
 import Button from "../../../src/components/Button";
 import Input from "../../../src/components/Input";
+import CustomPicker from "../../../src/components/CustomPicker";
 
 const Teacher = () => {
     const [page, setPage] = useState(1);
@@ -14,6 +15,9 @@ const Teacher = () => {
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [biography, setBiography] = useState("");
+    const [subjects, setSubjects] = useState([]);
+    const [subject, setSubject] = useState("");
+    const [price, setPrice] = useState("");
 
     const [type, setType] = useState(CameraType.back);
     const [permission, setPermission] = useState(false);
@@ -47,6 +51,11 @@ const Teacher = () => {
         router.back();
     }
 
+    useEffect(() => {
+        // TODO: Pegar matérias do banco de dados
+        setSubjects(["Matemática", "História", "Geografia"]);
+    }, [])
+
     const validateInputAndAdvance = (page) => {
         switch(page) {
             case 1:
@@ -71,6 +80,11 @@ const Teacher = () => {
                 }
                 break;
             case 4:
+                if(price == "" || subject == ""){
+                    ToastAndroid.show('Inputs inválidos!', ToastAndroid.LONG)
+                    console.log("Erro: Input não é válido");
+                    return;
+                }
                 break;
             case 5:
                 handleAccountCreation();
@@ -222,6 +236,13 @@ const Teacher = () => {
                 <>
                     <Text style={styles.subtitle}>Sobre a aula</Text>
                     <View style={{marginTop: 80}}>
+                        <CustomPicker 
+                            label="Matéria"
+                            options={subjects}
+                            value={subject}
+                            setValue={setSubject}
+                        />
+                        <Input label="Custo da sua hora/aula (em R$)*" value={price} setValue={setPrice}/>
                         <View style={[styles.buttonGroup, {marginTop: 16}]}>
                             <Button 
                                 text="Voltar" 
