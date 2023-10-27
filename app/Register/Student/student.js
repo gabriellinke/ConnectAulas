@@ -24,9 +24,9 @@ const Student = () => {
                 Cadastre-se como {'\n'}Aluno
             </Text>
             <View style={{marginTop: 80}}>
-                <Input label="Email*" value={email} setValue={setEmail}/>
-                <Input label="Senha*" value={password} setValue={setPassword} isPassword/>
-                <Input label="Nome*" value={name} setValue={setName}/>
+                <Input label="Email*" value={email} setValue={setEmail} placeholder="email@example.com"/>
+                <Input label="Senha*" value={password} setValue={setPassword} isPassword placeholder="********"/>
+                <Input label="Nome*" value={name} setValue={setName} placeholder="Nome Sobrenome"/>
                 <View style={[styles.buttonGroup, {marginTop: 16}]}>
                     <Button
                         text="Criar cadastro"

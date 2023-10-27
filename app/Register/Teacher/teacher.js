@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { View, Text, Image, TouchableOpacity, ToastAndroid } from "react-native";
+import { View, Text, Image, TouchableOpacity, ToastAndroid, ScrollView } from "react-native";
 import styles from '../styles';
 import * as Colors from '../../../src/styles/colors'
 import { Camera, CameraType } from 'expo-camera';
@@ -15,15 +15,18 @@ const Teacher = () => {
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [biography, setBiography] = useState("");
-    const [subjects, setSubjects] = useState([]);
     const [subject, setSubject] = useState("");
     const [price, setPrice] = useState("");
-
+    const [schedules, setSchedules] = useState([{weekDay: "", startTime: "", endTime: ""}]);
+    
     const [type, setType] = useState(CameraType.back);
     const [permission, setPermission] = useState(false);
     const [photo, setPhoto] = useState(null);
     const [takingPhoto, setTakingPhoto] = useState(false);
     const cameraRef = useRef(null);
+
+    const [subjects, setSubjects] = useState([]);
+    const weekDays = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
 
     function toggleCameraType() {
         setType(current => (current === CameraType.back ? CameraType.front : CameraType.back));
@@ -45,7 +48,18 @@ const Teacher = () => {
 
     const handleAccountCreation = () => {
         console.log("Cadastro do aluno");
-        // TODO: validar inputs
+        console.log({
+            email,
+            password,
+            name,
+            phone,
+            biography,
+            photo,
+            subject,
+            price,
+            schedules
+        })
+        // TODO
         // Enviar requisição para o backend
         // Mostrar mensagem de cadastro concluído
         router.back();
@@ -87,6 +101,14 @@ const Teacher = () => {
                 }
                 break;
             case 5:
+                const schedulesHasEmptyField = schedules.some(item => {
+                    return Object.values(item).some(value => value === "");
+                });
+                if(schedulesHasEmptyField) {
+                    ToastAndroid.show('Inputs inválidos! Preencha todos', ToastAndroid.LONG)
+                    console.log("Erro: Input não é válido");
+                    return;
+                }
                 handleAccountCreation();
                 break;
             default:
@@ -115,8 +137,8 @@ const Teacher = () => {
                 <>
                     <Text style={styles.subtitle}>Informações para acesso</Text>
                     <View style={{marginTop: 80}}>
-                        <Input label="Email*" value={email} setValue={setEmail}/>
-                        <Input label="Senha*" value={password} setValue={setPassword} isPassword/>
+                        <Input label="Email*" value={email} setValue={setEmail} placeholder="email@example.com"/>
+                        <Input label="Senha*" value={password} setValue={setPassword} isPassword placeholder="*********"/>
                         <View style={[styles.buttonGroup, {marginTop: 16}]}>
                             <Button 
                                 text="Voltar" 
@@ -139,9 +161,9 @@ const Teacher = () => {
                 <>
                     <Text style={styles.subtitle}>Seus dados - informações gerais</Text>
                     <View style={{marginTop: 80}}>
-                        <Input label="Nome*" value={name} setValue={setName}/>
-                        <Input label="Número para contato*" value={phone} setValue={setPhone}/>
-                        <Input label="Biografia*" value={biography} setValue={setBiography} numberOfLines={3}/>
+                        <Input label="Nome*" value={name} setValue={setName} placeholder="Nome Sobrenome"/>
+                        <Input label="Número para contato*" value={phone} setValue={setPhone} placeholder="41 99999-9999" maskType="phone"/>
+                        <Input label="Biografia*" value={biography} setValue={setBiography} numberOfLines={3} placeholder="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore"/>
                         <View style={[styles.buttonGroup, {marginTop: 16}]}>
                             <Button 
                                 text="Voltar" 
@@ -242,7 +264,7 @@ const Teacher = () => {
                             value={subject}
                             setValue={setSubject}
                         />
-                        <Input label="Custo da sua hora/aula (em R$)*" value={price} setValue={setPrice}/>
+                        <Input label="Custo da sua hora/aula (em R$)*" value={price} setValue={setPrice} placeholder="50.00" maskType="price"/>
                         <View style={[styles.buttonGroup, {marginTop: 16}]}>
                             <Button 
                                 text="Voltar" 
@@ -263,25 +285,86 @@ const Teacher = () => {
                 </>
             ): (
                 <>
-                    <Text style={styles.subtitle}>Horários disponíveis</Text>
-                    <View style={{marginTop: 80}}>
-                        <View style={[styles.buttonGroup, {marginTop: 16}]}>
+                    <Text style={[styles.subtitle, {marginBottom: 16}]}>Horários disponíveis</Text>
+                    <ScrollView style={{paddingTop: 64, marginBottom: 120}}>
+                        <View style={{paddingBottom: 64}}>
+                            <View >
+                                {schedules.map((item, index) => {
+                                    return(
+                                        <View key={index} style={{marginBottom: 16}}>
+                                            <CustomPicker 
+                                                label="Dia da semana"
+                                                options={weekDays}
+                                                value={item.weekDay}
+                                                setValue={(value) => {
+                                                    if(value) {
+                                                        const updatedSchedules = [...schedules];
+                                                        updatedSchedules[index] = { ...item, weekDay: value };
+                                                        setSchedules(updatedSchedules);
+                                                    }
+                                                }}
+                                            />
+                                            <View style={[styles.buttonGroup]}>
+                                                <View style={{width: '48%'}}>
+                                                    <Input 
+                                                        label="Das*"
+                                                        maskType="schedule"
+                                                        value={item.startTime}
+                                                        setValue={(value) => {
+                                                            if(value) {
+                                                                const updatedSchedules = [...schedules];
+                                                                updatedSchedules[index] = { ...item, startTime: value };
+                                                                setSchedules(updatedSchedules);
+                                                            }
+                                                        }}
+                                                        placeholder="08:00"
+                                                    />
+                                                </View>
+                                                <View style={{width: '48%'}}>
+                                                    <Input 
+                                                        label="Até*"
+                                                        maskType="schedule"
+                                                        value={item.endTime}
+                                                        setValue={(value) => {
+                                                            if(value) {
+                                                                const updatedSchedules = [...schedules];
+                                                                updatedSchedules[index] = { ...item, endTime: value };
+                                                                setSchedules(updatedSchedules);
+                                                            }
+                                                        }}
+                                                        placeholder="12:00"
+                                                    />
+                                                </View>
+                                            </View>
+                                        </View>
+                                    )
+                                })}
+                            </View>
                             <Button 
-                                text="Voltar" 
-                                width={'48%'} 
+                                text="Novo horário" 
+                                width={'100%'} 
                                 height={56} 
                                 type={"purple"}
-                                onPress={() => setPage(page-1)}
+                                onPress={() => setSchedules([...schedules, {weekDay: "", startTime: "", endTime: ""}])}
                             />
-                            <Button
-                                text="Finalizar"
-                                width={'48%'} 
-                                height={56} 
-                                type={"green"}
-                                onPress={() => validateInputAndAdvance(page)}
-                            />
+                            <View style={[styles.buttonGroup, {marginTop: 16}]}>
+                                <Button 
+                                    text="Voltar" 
+                                    width={'48%'} 
+                                    height={56} 
+                                    type={"purple"}
+                                    onPress={() => setPage(page-1)}
+                                />
+                                <Button
+                                    text="Finalizar"
+                                    width={'48%'} 
+                                    height={56} 
+                                    type={"green"}
+                                    onPress={() => validateInputAndAdvance(page)}
+                                />
+                            </View>
                         </View>
-                    </View>
+                    </ScrollView>
                 </>
             )}
 

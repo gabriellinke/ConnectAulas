@@ -22,8 +22,8 @@ const Teacher = () => {
                 Entre como {'\n'}Professor
             </Text>
             <View style={{marginTop: 80}}>
-                <Input label="Email" value={email} setValue={setEmail}/>
-                <Input label="Senha" value={password} setValue={setPassword} isPassword/>
+                <Input label="Email" value={email} setValue={setEmail} placeholder="email@example.com"/>
+                <Input label="Senha" value={password} setValue={setPassword} isPassword placeholder="********"/>
                 <View style={[styles.buttonGroup, {marginTop: 16}]}>
                     <Button 
                         text="Cadastrar" 
