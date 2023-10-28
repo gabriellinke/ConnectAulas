@@ -1,19 +1,38 @@
 import { useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, ToastAndroid } from "react-native";
 import { router } from "expo-router";
+import { useAuth } from "reactfire";
+import { signInWithEmailAndPassword } from "@firebase/auth";
+import { FirebaseError } from "@firebase/util";
+
+import styles from '../styles';
 import Input from "../../../src/components/Input";
 import Button from "../../../src/components/Button";
-import styles from '../styles';
+import { getErrorMessage } from "../../../src/utils/firebase/errors";
 
 const Student = () => {
     const [email, setEmail] = useState();
     const [password, setPassword] = useState();
+
+    const auth = useAuth();
     
-    const handleLogin = () => {
+    const handleLogin = async () => {
         console.log("Login student");
-        // TODO: logar usuário usando backend
-        // Salvar token do usuário para persistir seção
-        router.replace({pathname: 'Metrics', params: { value: 'study' } })
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+
+            router.replace({pathname: "Metrics", params: { value: "study" } });
+        }
+        catch (err) {
+            if (err instanceof FirebaseError) {
+                ToastAndroid.show(getErrorMessage(err), ToastAndroid.LONG);
+                console.error(err)
+            }
+            else {
+                throw err;
+            }
+        }
     }
     
     return (
