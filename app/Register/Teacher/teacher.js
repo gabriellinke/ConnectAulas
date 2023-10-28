@@ -1,12 +1,20 @@
 import { useState, useRef, useEffect } from "react";
 import { View, Text, Image, TouchableOpacity, ToastAndroid, ScrollView } from "react-native";
-import styles from '../styles';
-import * as Colors from '../../../src/styles/colors'
 import { Camera, CameraType } from 'expo-camera';
 import { router } from 'expo-router';
+import { useAuth, useFirestore, useStorage } from "reactfire";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { doc, setDoc } from "firebase/firestore";
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+import { FirebaseError } from "firebase/app";
+
+import styles from '../styles';
+import * as Colors from '../../../src/styles/colors'
 import Button from "../../../src/components/Button";
 import Input from "../../../src/components/Input";
 import CustomPicker from "../../../src/components/CustomPicker";
+import { blobFromUri } from "../../../src/utils/image";
+import { getErrorMessage } from "../../../src/utils/firebase/errors";
 
 const Teacher = () => {
     const [page, setPage] = useState(1);
@@ -28,6 +36,10 @@ const Teacher = () => {
     const [subjects, setSubjects] = useState([]);
     const weekDays = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
 
+    const auth = useAuth();
+    const storage = useStorage();
+    const firestore = useFirestore();
+
     function toggleCameraType() {
         setType(current => (current === CameraType.back ? CameraType.front : CameraType.back));
     }
@@ -46,7 +58,7 @@ const Teacher = () => {
         }
     }
 
-    const handleAccountCreation = () => {
+    const handleAccountCreation = async () => {
         console.log("Cadastro do aluno");
         console.log({
             email,
@@ -59,10 +71,47 @@ const Teacher = () => {
             price,
             schedules
         })
-        // TODO
-        // Enviar requisição para o backend
-        // Mostrar mensagem de cadastro concluído
-        router.back();
+
+        try {
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+
+            const blob = await blobFromUri(photo.uri);
+            const storageRef = ref(storage, `userImage/${userCredential.user.uid}.png`);
+
+            await uploadBytes(storageRef, blob);
+
+            const photoUrl = await getDownloadURL(storageRef);
+            
+            await updateProfile(userCredential.user, {
+                displayName: name,
+                photoURL: photoUrl,
+            });
+
+            await setDoc(doc(firestore, "teachers", userCredential.user.uid), {
+                userUid: userCredential.user.uid,
+                photoUrl,
+                subject,
+                hourlyRate: price,
+                phoneNumber: phone,
+                biography,
+                communities: [],
+                questions: [],
+                availableTimes: schedules,
+            });
+
+            ToastAndroid.show("Cadastro concluído!", ToastAndroid.LONG);
+
+            router.back();
+        }
+        catch (err) {
+            if (err instanceof FirebaseError) {
+                ToastAndroid.show(getErrorMessage(err), ToastAndroid.LONG);
+                console.error(err)
+            }
+            else {
+                throw err;
+            }
+        }
     }
 
     useEffect(() => {
