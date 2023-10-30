@@ -22,7 +22,7 @@ const Teacher = () => {
         try {
             await signInWithEmailAndPassword(auth, email, password);
 
-            router.replace({pathname: "Metrics", params: { value: "teach" } });
+            router.replace({pathname: "HomeTeacher"});
         }
         catch (err) {
             if (err instanceof FirebaseError) {
