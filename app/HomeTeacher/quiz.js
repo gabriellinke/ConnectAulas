@@ -1,9 +1,8 @@
-import { View, Text } from "react-native";
-const Home = () => {
+import Quiz from './Quiz/index'
+
+const QuizWrapper = () => {
   return (
-    <View>
-      <Text>Quiz</Text>
-    </View>
+    <Quiz />
   );
 };
-export default Home;
+export default QuizWrapper;

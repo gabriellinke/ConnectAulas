@@ -28,6 +28,20 @@ export default () => {
           tabBarLabel: "comunidades",
         }}
       />
+      <Tabs.Screen
+        // Name of the route to hide.
+        name="styles"
+        options={{
+          // This tab will no longer show up in the tab bar.
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="Quiz/index"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
   // return <Tabs/>
