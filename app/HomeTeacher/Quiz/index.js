@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text } from 'react-native';
 
 import HeaderTitle from '../../../src/components/HeaderTitle';
-import QuizCard from '../../../src/components/QuizCard';
+import QuizCard from '../../../src/components/QuizCardAdmin';
 
 import styles from '../styles';
 
@@ -32,7 +32,7 @@ const Quiz = () => {
   }, [])
 
   const deleteQuiz = (id) => {
-    // TODO: delete quiz
+    // TODO: delete quiz from firebase
     console.log("Delete id: ", id);
   }
 
@@ -62,6 +62,7 @@ const Quiz = () => {
             )
           })
           ) : (
+            // TODO: Create something better
             <Text>Nenhum quiz cadastrado</Text>
           )
         }

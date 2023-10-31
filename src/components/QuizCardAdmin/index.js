@@ -3,7 +3,7 @@ import { View, Text } from 'react-native';
 import Button from '../Button'
 import styles from './styles';
 
-const QuizCard = ({ title, text, subject, choices, answer, deleteCallback }) => {
+const QuizCardAdmin = ({ title, text, subject, choices, answer, deleteCallback }) => {
 
     return (
         <View style={styles.container}>
@@ -37,4 +37,4 @@ const QuizCard = ({ title, text, subject, choices, answer, deleteCallback }) => 
     )
 }
 
-export default QuizCard;
+export default QuizCardAdmin;

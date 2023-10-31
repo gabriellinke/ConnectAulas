@@ -1,9 +1,8 @@
-import { View, Text } from "react-native";
-const Inbox = () => {
+import Communities from './Communities/index'
+
+const CommunitiesWrapper = () => {
   return (
-    <View>
-      <Text>Comunidades</Text>
-    </View>
+    <Communities />
   );
 };
-export default Inbox;
+export default CommunitiesWrapper;

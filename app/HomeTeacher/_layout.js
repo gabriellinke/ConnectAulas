@@ -42,6 +42,12 @@ export default () => {
           href: null,
         }}
       />
+      <Tabs.Screen
+        name="Communities/index"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
   // return <Tabs/>

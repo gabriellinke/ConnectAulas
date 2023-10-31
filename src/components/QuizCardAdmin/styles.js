@@ -3,7 +3,7 @@ import * as Colors from '../../styles/colors.js';
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: Colors.BACKGROUND,
+    backgroundColor: Colors.SHAPES_01,
     borderWidth: 1,
     borderColor: Colors.LINES_IN_WHITE,
     borderRadius: 8,
@@ -12,17 +12,14 @@ const styles = StyleSheet.create({
   },
 
   titleAndSubjectContainer: {
-    padding: 24,
-  },
-
-  titleAndSubject: {
-    marginLeft: 16,
+    paddingVertical: 24,
   },
 
   title: {
     // fontFamily: 'Archivo_700Bold',
     color: Colors.TEXT_TITULOS,
     fontSize: 20,
+    fontWeight: '700',
   },
 
   subject: {
