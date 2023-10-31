@@ -10,6 +10,19 @@ const styles = StyleSheet.create({
   list: {
     marginTop: -40,
   },
+
+  createButtonContainer: {
+    display: 'flex',
+    flexDirection: "row",
+    alignItems: 'center',
+    paddingRight: 16
+  },
+  
+  textCreateButton: {
+    fontSize: 16,
+    lineHeight: 24,
+    color: Colors.TEXT_IN_PURPLE_BASE,
+  }
 })
 
 export default styles;

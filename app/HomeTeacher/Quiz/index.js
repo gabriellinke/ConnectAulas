@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, ScrollView, Text } from 'react-native';
+import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { Ionicons } from "@expo/vector-icons";
+import * as Colors from '../../../src/styles/colors.js'
+import { Stack, router } from "expo-router";
 
 import HeaderTitle from '../../../src/components/HeaderTitle';
 import QuizCard from '../../../src/components/QuizCardAdmin';
@@ -36,8 +39,29 @@ const Quiz = () => {
     console.log("Delete id: ", id);
   }
 
+  const CreateButton = () => {
+    return (
+      <TouchableOpacity style={styles.createButtonContainer} onPress={() => router.push('CreateQuiz')}>
+        <Ionicons name={'md-add'} size={32} color={Colors.TEXT_IN_PURPLE_BASE}/>
+        <Text style={styles.textCreateButton}>
+          Criar
+        </Text>
+      </TouchableOpacity>)
+  }
+
   return (
     <View style={styles.container}>
+      <Stack.Screen
+        options={{
+          headerStyle: {
+            backgroundColor: Colors.PURPLE,
+          },
+          headerTintColor: Colors.TEXT_IN_PURPLE_BASE,
+          headerShadowVisible: false,
+          title: '',
+          headerRight: () => <CreateButton />
+        }}
+      />
       <HeaderTitle title="Meus Quizes" />
 
       <ScrollView
