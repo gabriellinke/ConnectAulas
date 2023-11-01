@@ -15,7 +15,7 @@ const CreateQuiz = () => {
   const [choiceB, setChoiceB] = useState('');
   const [choiceC, setChoiceC] = useState('');
   const [choiceD, setChoiceD] = useState('');
-  const [answer, setAnswer] = useState('');
+  const [answer, setAnswer] = useState();
   const [answers, setAnswers] = useState(['A','B','C','D']);
 
   const [page, setPage] = useState(1);

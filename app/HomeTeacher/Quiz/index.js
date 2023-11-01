@@ -21,7 +21,7 @@ const Quiz = () => {
         subject: "Conteúdo",
         text: "Essa é uma questão que poderia estar no quiz de algum professor. Abaixo está o enunciado mais detalhado. Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
         choices: ["Alternativa A", "Alternativa B", "Alternativa C", "Alternativa D"],
-        answer: "A",
+        answer: 0,
       },
       {
         id: 2,
@@ -29,7 +29,7 @@ const Quiz = () => {
         subject: "Conteúdo diferente",
         text: "Essa é uma questão que poderia estar no quiz de algum professor. Abaixo está o enunciado mais detalhado. Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
         choices: ["Alternativa A", "Alternativa B", "Alternativa C", "Alternativa D"],
-        answer: "D",
+        answer: 3,
       }
     ])
   }, [])

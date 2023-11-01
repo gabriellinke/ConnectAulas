@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text } from 'react-native';
 import Button from '../Button'
 import styles from './styles';
+import RadioButtonGroup from '../RadioButtonGroup';
 
 const QuizCardAdmin = ({ title, text, subject, choices, answer, deleteCallback }) => {
+    const [userOption, setUserOption] = useState(answer);
 
     return (
         <View style={styles.container}>
@@ -18,10 +20,13 @@ const QuizCardAdmin = ({ title, text, subject, choices, answer, deleteCallback }
                 <Text style={styles.text}>{text}</Text>
 
                 <View style={styles.choicesContainer}>
-                    <Text style={styles.choices}>alternativa</Text>
-                    <Text style={styles.choices}>alternativa</Text>
-                    <Text style={styles.choices}>alternativa</Text>
-                    <Text style={styles.choices}>alternativa</Text>
+                    <RadioButtonGroup
+                        userOption={userOption}
+                        setUserOption={setUserOption}
+                        choices={choices}
+                        answer={answer}
+                        locked={true}
+                    />
                 </View>
                 <View style={styles.button}>
                     <Button
