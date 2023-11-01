@@ -23,7 +23,7 @@ const Teacher = () => {
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [biography, setBiography] = useState("");
-    const [subject, setSubject] = useState("");
+    const [selectedSubjectIndex, setselectedSubjectIndex] = useState();
     const [price, setPrice] = useState("");
     const [schedules, setSchedules] = useState([{weekDay: "", startTime: "", endTime: ""}]);
     
@@ -67,7 +67,7 @@ const Teacher = () => {
             phone,
             biography,
             photo,
-            subject,
+            subject: subjects[selectedSubjectIndex],
             price,
             schedules
         })
@@ -90,7 +90,7 @@ const Teacher = () => {
             await setDoc(doc(firestore, "teachers", userCredential.user.uid), {
                 userUid: userCredential.user.uid,
                 photoUrl,
-                subject,
+                subject: subjects[selectedSubjectIndex],
                 hourlyRate: price,
                 phoneNumber: phone,
                 biography,
@@ -122,14 +122,14 @@ const Teacher = () => {
     const validateInputAndAdvance = (page) => {
         switch(page) {
             case 1:
-                if(email == "" || password == ""){
+                if(email === "" || password === ""){
                     ToastAndroid.show('Inputs inválidos!', ToastAndroid.LONG)
                     console.log("Erro: Input não é válido");
                     return;
                 }
                 break;
             case 2:
-                if(name == "" || phone == "" || biography == ""){
+                if(name === "" || phone === "" || biography === ""){
                     ToastAndroid.show('Inputs inválidos!', ToastAndroid.LONG)
                     console.log("Erro: Input não é válido");
                     return;
@@ -143,7 +143,7 @@ const Teacher = () => {
                 }
                 break;
             case 4:
-                if(price == "" || subject == ""){
+                if(price === "" || subjects[setselectedSubjectIndex] === ""){
                     ToastAndroid.show('Inputs inválidos!', ToastAndroid.LONG)
                     console.log("Erro: Input não é válido");
                     return;
@@ -310,8 +310,8 @@ const Teacher = () => {
                         <CustomPicker 
                             label="Matéria"
                             options={subjects}
-                            value={subject}
-                            setValue={setSubject}
+                            value={selectedSubjectIndex}
+                            setValue={setselectedSubjectIndex}
                         />
                         <Input label="Custo da sua hora/aula (em R$)*" value={price} setValue={setPrice} placeholder="50.00" maskType="price"/>
                         <View style={[styles.buttonGroup, {marginTop: 16}]}>

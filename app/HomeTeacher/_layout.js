@@ -1,4 +1,4 @@
-import { Tabs, Stack,  } from "expo-router";
+import { Tabs, Stack } from "expo-router";
 import { AntDesign, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Colors from '../../src/styles/colors'
 

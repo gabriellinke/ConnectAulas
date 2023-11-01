@@ -20,7 +20,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 24,
     lineHeight: 32,
-    maxWidth: 160,
+    maxWidth: 200,
     marginTop: 20,
     marginBottom: 40,
   },
