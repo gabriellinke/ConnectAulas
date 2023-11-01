@@ -17,6 +17,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingRight: 16
   },
+
+  logoutButtonContainer: {
+    display: 'flex',
+    flexDirection: "row",
+    alignItems: 'center',
+    paddingLeft: 16,
+  },
   
   textCreateButton: {
     fontSize: 16,

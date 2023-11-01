@@ -8,9 +8,11 @@ import HeaderTitle from '../../../src/components/HeaderTitle';
 import QuizCard from '../../../src/components/QuizCardAdmin';
 
 import styles from '../styles';
+import { useAuth } from 'reactfire';
 
 const Quiz = () => {
   const [quizes, setQuizes] = useState([]);
+  const auth = useAuth();
 
   useEffect(() => {
     //TODO: Get teacher quizes from firebase
@@ -49,6 +51,21 @@ const Quiz = () => {
       </TouchableOpacity>)
   }
 
+  const LogoutButton = () => {
+    return (
+      <TouchableOpacity style={styles.logoutButtonContainer} onPress={logout}>
+        <Text style={styles.textCreateButton}>
+          Logout
+        </Text>
+      </TouchableOpacity>)
+  }
+
+  const logout = () => {
+    auth.signOut();
+    router.push('Landing');
+  }
+
+
   return (
     <View style={styles.container}>
       <Stack.Screen
@@ -59,7 +76,8 @@ const Quiz = () => {
           headerTintColor: Colors.TEXT_IN_PURPLE_BASE,
           headerShadowVisible: false,
           title: '',
-          headerRight: () => <CreateButton />
+          headerRight: () => <CreateButton />,
+          headerLeft: () => <LogoutButton />,
         }}
       />
       <HeaderTitle title="Meus Quizes" />

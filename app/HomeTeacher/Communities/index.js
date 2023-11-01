@@ -8,9 +8,11 @@ import HeaderTitle from '../../../src/components/HeaderTitle';
 import CommunityCard from '../../../src/components/CommunityCardAdmin';
 
 import styles from '../styles';
+import { useAuth } from 'reactfire';
 
 const Communities = () => {
   const [communities, setCommunities] = useState([]);
+  const auth = useAuth();
 
   useEffect(() => {
     //TODO: Get teacher communities from firebase
@@ -47,6 +49,20 @@ const Communities = () => {
       </TouchableOpacity>)
   }
 
+  const LogoutButton = () => {
+    return (
+      <TouchableOpacity style={styles.logoutButtonContainer} onPress={logout}>
+        <Text style={styles.textCreateButton}>
+          Logout
+        </Text>
+      </TouchableOpacity>)
+  }
+
+  const logout = () => {
+    auth.signOut();
+    router.push('Landing');
+  }
+
   return (
     <View style={styles.container}>
       <Stack.Screen
@@ -57,7 +73,8 @@ const Communities = () => {
           headerTintColor: Colors.TEXT_IN_PURPLE_BASE,
           headerShadowVisible: false,
           title: '',
-          headerRight: () => <CreateButton />
+          headerRight: () => <CreateButton />,
+          headerLeft: () => <LogoutButton />,
         }}
       />
       <HeaderTitle title="Minhas Comunidades" />
