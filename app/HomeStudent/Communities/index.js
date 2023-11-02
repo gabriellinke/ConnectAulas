@@ -1,42 +1,52 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { RectButton } from 'react-native-gesture-handler';
 import * as Colors from '../../../src/styles/colors.js'
 import { Stack, router } from "expo-router";
+import { Feather, MaterialIcons } from '@expo/vector-icons';
 
 import HeaderTitle from '../../../src/components/HeaderTitle';
-import CommunityCard from '../../../src/components/CommunityCardAdmin';
+import CommunityCard from '../../../src/components/CommunityCard';
+import CustomPicker from '../../../src/components/CustomPicker/index.js';
 
 import styles from '../styles';
 import { useAuth } from 'reactfire';
 
 const Communities = () => {
   const [communities, setCommunities] = useState([]);
+  const [visibleCommunities, setVisibleCommunities] = useState([]);
+  const [isFiltersVisible, setIsFiltersVisible] = useState(true);
+
+  const [subjects, setSubjects] = useState([]);
+  const [selectedSubjectIndex, setselectedSubjectIndex] = useState();
+
   const auth = useAuth();
 
   useEffect(() => {
-    //TODO: Get teacher communities from firebase
-    setCommunities([
+    //TODO: Get all communities from firebase
+    const allCommunities = [
       {
         id: 1,
         name: "Aulas de Código Penal",
-        subject: "Professor Gilmar",
+        subject: "Matemática",
         description: "Comunidade para estudo do código penal, especialmente o artigo Jacaré.\n\n Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
         externalUrl: "",
       },
       {
         id: 2,
         name: "Grupo de estudos",
-        subject: "Matéria de Matemática",
+        subject: "Geografia",
         description: "Comunidade para estudo do código penal, especialmente o artigo Jacaré.\n\n Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
         externalUrl: "",
       }
-    ])
-  }, [])
+    ]
 
-  const deleteCommunity = (id) => {
-    // TODO: delete quiz from firebase
-    console.log("Delete id: ", id);
-  }
+    setCommunities(allCommunities);
+    setVisibleCommunities(allCommunities);
+
+    //TODO: Get all subjects from firebase
+    setSubjects(["Matemática", "História", "Geografia"]);
+  }, [])
 
   const LogoutButton = () => {
     return (
@@ -52,6 +62,20 @@ const Communities = () => {
     router.push('Landing');
   }
 
+  function handleToggleFiltersVisible() {
+    setIsFiltersVisible(!isFiltersVisible);
+  }
+
+  async function handleFiltersSubmit() {
+    const subject = subjects[selectedSubjectIndex];
+    setIsFiltersVisible(false);
+    if(subject === ''){
+      setVisibleCommunities(communities);
+      return;
+    }
+    setVisibleCommunities(communities.filter(community => community.subject === subject));
+  }
+
   return (
     <View style={styles.container}>
       <Stack.Screen
@@ -65,7 +89,35 @@ const Communities = () => {
           headerLeft: () => <LogoutButton />,
         }}
       />
-      <HeaderTitle title="Comunidades Disponíveis" />
+      <HeaderTitle title="Comunidades Disponíveis" >
+        <RectButton onPress={handleToggleFiltersVisible} style={{marginBottom: 16}}>
+          <View style={styles.filterButton}>
+            <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+              <Feather name="filter" size={20} color={Colors.GREEN} style={{marginRight: 16}} />
+              <Text style={styles.filterText}>Filtrar por matéria</Text>
+            </View>
+              {isFiltersVisible ? (
+                <MaterialIcons name="keyboard-arrow-up" size={20} color={Colors.ANOTHER_PURPLE} />
+              ): (
+                <MaterialIcons name="keyboard-arrow-down" size={20} color={Colors.ANOTHER_PURPLE} />
+              )}
+          </View> 
+        </RectButton>
+        { isFiltersVisible && (
+            <View style={styles.searchForm}>
+              <CustomPicker 
+                label="Matéria"
+                options={subjects}
+                value={selectedSubjectIndex}
+                setValue={setselectedSubjectIndex}
+              />
+              <RectButton onPress={handleFiltersSubmit} style={styles.submitButton}>
+                <Text style={styles.submitButtonText}>Filtrar</Text>
+              </RectButton>
+            </View>
+          )
+        }  
+      </HeaderTitle>
 
       <ScrollView
         style={styles.list}
@@ -74,15 +126,14 @@ const Communities = () => {
           paddingBottom: 16,
         }}
       >
-        {communities.length > 0 ? (
-          communities.map((community, index) => {
+        {visibleCommunities.length > 0 ? (
+          visibleCommunities.map((community, index) => {
             return (
               <CommunityCard
                 name={community.name}
                 subject={community.subject}
                 description={community.description}
                 externalUrl={community.externalUrl}
-                deleteCallback={() => deleteCommunity(community.id)}
                 key={index}
               />
             )
