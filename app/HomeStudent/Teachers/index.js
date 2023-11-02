@@ -1,21 +1,33 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
+import { RectButton } from 'react-native-gesture-handler';
 import * as Colors from '../../../src/styles/colors.js'
 import { Stack, router } from "expo-router";
+import { Feather, MaterialIcons } from '@expo/vector-icons';
 
 import HeaderTitle from '../../../src/components/HeaderTitle/index.js';
 import TeacherCard from '../../../src/components/TeacherCard/index.js';
+import CustomPicker from '../../../src/components/CustomPicker/index.js';
+import Input from '../../../src/components/Input/index.js';
 
 import styles from '../styles';
 import { useAuth } from 'reactfire';
 
 const Teacher = () => {
   const [teachers, setTeachers] = useState([]);
+  const [visibleTeachers, setVisibleTeachers] = useState([]);
   const auth = useAuth();
+
+  const [areFiltersVisible, setAreFiltersVisible] = useState(false);
+  const [subjects, setSubjects] = useState([]);
+  const [selectedSubjectIndex, setSelectedSubjectIndex] = useState(-1);
+  const weekDays = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
+  const [selectedWeekDayIndex, setSelectedWeekDayIndex] = useState();
+  const [filterTime, setFilterTime] = useState('');
 
   useEffect(() => {
     //TODO: Get teacher from firebase
-    setTeachers([
+    const allTeachers = [
       {
         id: 1,
         name: "Gabriel Linke",
@@ -68,7 +80,13 @@ const Teacher = () => {
           },
         ]
       },
-    ])
+    ]
+
+    setTeachers(allTeachers)
+    setVisibleTeachers(allTeachers)
+
+    //TODO: Get all subjects from firebase
+    setSubjects(["Matemática", "História", "Geografia", "Código penal"]);
   }, [])
 
   const LogoutButton = () => {
@@ -85,6 +103,33 @@ const Teacher = () => {
     router.push('Landing');
   }
 
+  function handleToggleFiltersVisible() {
+    setAreFiltersVisible(!areFiltersVisible);
+  }
+
+  async function handleFiltersSubmit() {
+    setAreFiltersVisible(false);
+
+    const subject = subjects[selectedSubjectIndex];
+    const weekDay = weekDays[selectedWeekDayIndex];
+
+    let filteredTeachers = teachers;
+    if(subject) {
+      filteredTeachers = filteredTeachers.filter(teacher => teacher.subject === subject);
+    }
+    if(weekDay) {
+      filteredTeachers = filteredTeachers.filter(teacher => {
+        return teacher.availableTimes.some(time => time.weekDay === weekDay);
+      });
+    }
+    if(filterTime !== '') {
+      filteredTeachers = filteredTeachers.filter(teacher => {
+        return teacher.availableTimes.some(time => time.startTime === filterTime);
+      });
+    }
+
+    setVisibleTeachers(filteredTeachers);
+  }
 
   return (
     <View style={styles.container}>
@@ -99,7 +144,57 @@ const Teacher = () => {
           headerLeft: () => <LogoutButton />,
         }}
       />
-      <HeaderTitle title="Professores Disponíveis" />
+      <HeaderTitle title="Professores Disponíveis">
+      <RectButton onPress={handleToggleFiltersVisible} style={{marginBottom: 16}}>
+          <View style={styles.filterButton}>
+            <View style={{display: 'flex', flexDirection: 'row', alignItems: 'center'}}>
+              <Feather name="filter" size={20} color={Colors.GREEN} style={{marginRight: 16}} />
+              <Text style={styles.filterText}>Filtrar por matéria</Text>
+            </View>
+              {areFiltersVisible ? (
+                <MaterialIcons name="keyboard-arrow-up" size={20} color={Colors.ANOTHER_PURPLE} />
+              ): (
+                <MaterialIcons name="keyboard-arrow-down" size={20} color={Colors.ANOTHER_PURPLE} />
+              )}
+          </View> 
+        </RectButton>
+        { areFiltersVisible && (
+          <View style={styles.searchForm}>
+            <CustomPicker 
+              label="Matéria"
+              options={subjects}
+              value={selectedSubjectIndex}
+              setValue={setSelectedSubjectIndex}
+            />
+
+            <View style={styles.inputGroup}>
+              <View style={styles.inputBlock}>
+                <CustomPicker
+                  label="Dia da semana"
+                  options={weekDays}
+                  value={selectedWeekDayIndex}
+                  setValue={setSelectedWeekDayIndex}
+                />
+              </View>
+
+              <View style={styles.inputBlock}>
+                <Input
+                  label='Horário de início'
+                  placeholder="Qual horário?"
+                  value={filterTime}
+                  setValue={setFilterTime}
+                  maskType='schedule'
+                />
+              </View>
+            </View>
+
+            <RectButton onPress={handleFiltersSubmit} style={styles.submitButton}>
+              <Text style={styles.submitButtonText}>Filtrar</Text>
+            </RectButton>
+          </View>
+          )
+        }  
+      </HeaderTitle>
 
       <ScrollView
         style={styles.list}
@@ -108,8 +203,8 @@ const Teacher = () => {
           paddingBottom: 16,
         }}
       >
-        {teachers.length > 0 ? (
-          teachers.map((teacher, index) => {
+        {visibleTeachers.length > 0 ? (
+          visibleTeachers.map((teacher, index) => {
             return (
               <TeacherCard
                 name={teacher.name}

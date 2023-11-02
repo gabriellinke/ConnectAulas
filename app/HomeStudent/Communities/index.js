@@ -15,10 +15,10 @@ import { useAuth } from 'reactfire';
 const Communities = () => {
   const [communities, setCommunities] = useState([]);
   const [visibleCommunities, setVisibleCommunities] = useState([]);
-  const [isFiltersVisible, setIsFiltersVisible] = useState(true);
+  const [areFiltersVisible, setAreFiltersVisible] = useState(false);
 
   const [subjects, setSubjects] = useState([]);
-  const [selectedSubjectIndex, setselectedSubjectIndex] = useState();
+  const [selectedSubjectIndex, setSelectedSubjectIndex] = useState();
 
   const auth = useAuth();
 
@@ -63,12 +63,12 @@ const Communities = () => {
   }
 
   function handleToggleFiltersVisible() {
-    setIsFiltersVisible(!isFiltersVisible);
+    setAreFiltersVisible(!areFiltersVisible);
   }
 
   async function handleFiltersSubmit() {
     const subject = subjects[selectedSubjectIndex];
-    setIsFiltersVisible(false);
+    setAreFiltersVisible(false);
     if(subject === ''){
       setVisibleCommunities(communities);
       return;
@@ -96,20 +96,20 @@ const Communities = () => {
               <Feather name="filter" size={20} color={Colors.GREEN} style={{marginRight: 16}} />
               <Text style={styles.filterText}>Filtrar por matéria</Text>
             </View>
-              {isFiltersVisible ? (
+              {areFiltersVisible ? (
                 <MaterialIcons name="keyboard-arrow-up" size={20} color={Colors.ANOTHER_PURPLE} />
               ): (
                 <MaterialIcons name="keyboard-arrow-down" size={20} color={Colors.ANOTHER_PURPLE} />
               )}
           </View> 
         </RectButton>
-        { isFiltersVisible && (
+        { areFiltersVisible && (
             <View style={styles.searchForm}>
               <CustomPicker 
                 label="Matéria"
                 options={subjects}
                 value={selectedSubjectIndex}
-                setValue={setselectedSubjectIndex}
+                setValue={setSelectedSubjectIndex}
               />
               <RectButton onPress={handleFiltersSubmit} style={styles.submitButton}>
                 <Text style={styles.submitButtonText}>Filtrar</Text>
