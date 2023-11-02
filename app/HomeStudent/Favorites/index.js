@@ -4,41 +4,72 @@ import * as Colors from '../../../src/styles/colors.js'
 import { Stack, router } from "expo-router";
 
 import HeaderTitle from '../../../src/components/HeaderTitle/index.js';
-import QuizCard from '../../../src/components/QuizCardAdmin/index.js';
+import TeacherCard from '../../../src/components/TeacherCard/index.js';
 
 import styles from '../styles';
 import { useAuth } from 'reactfire';
 
-const Quiz = () => {
-  const [quizes, setQuizes] = useState([]);
+const Favorites = () => {
+  const [teachers, setTeachers] = useState([]);
   const auth = useAuth();
 
   useEffect(() => {
-    //TODO: Get teacher quizes from firebase
-    setQuizes([
+    //TODO: Get teacher from firebase
+    setTeachers([
       {
         id: 1,
-        title: "Título da questão",
-        subject: "Conteúdo",
-        text: "Essa é uma questão que poderia estar no quiz de algum professor. Abaixo está o enunciado mais detalhado. Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
-        choices: ["Alternativa A", "Alternativa B", "Alternativa C", "Alternativa D"],
-        answer: 0,
+        name: "Gabriel Linke",
+        subject: "Matemática",
+        biography: "Essa é uma questão que poderia estar no quiz de algum professor. Abaixo está o enunciado mais detalhado. Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
+        hourlyRate: '50',
+        imageUrl: 'https://avatars.githubusercontent.com/u/51447706?v=4',
+        phoneNumber: '49988607303',
+        availableTimes: [
+          {
+            weekDay: 'Segunda-feira',
+            startTime: '08:00',
+            endTime: '10:00'
+          },
+          {
+            weekDay: 'Quarta-feira',
+            startTime: '08:00',
+            endTime: '10:00'
+          },
+          {
+            weekDay: 'Sexta-feira',
+            startTime: '08:00',
+            endTime: '10:00'
+          },
+        ]
       },
       {
         id: 2,
-        title: "Título da questão 2",
-        subject: "Conteúdo diferente",
-        text: "Essa é uma questão que poderia estar no quiz de algum professor. Abaixo está o enunciado mais detalhado. Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
-        choices: ["Alternativa A", "Alternativa B", "Alternativa C", "Alternativa D"],
-        answer: 3,
-      }
+        name: "Doutor Gilmar",
+        subject: "Código penal",
+        biography: "Essa é uma questão que poderia estar no quiz de algum professor. Abaixo está o enunciado mais detalhado. Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
+        hourlyRate: '200',
+        imageUrl: 'https://pbs.twimg.com/profile_images/1481641726/Sem_t_tulo_400x400.jpg',
+        phoneNumber: '49999861229',
+        availableTimes: [
+          {
+            weekDay: 'Segunda-feira',
+            startTime: '08:00',
+            endTime: '10:00'
+          },
+          {
+            weekDay: 'Quarta-feira',
+            startTime: '08:00',
+            endTime: '10:00'
+          },
+          {
+            weekDay: 'Sexta-feira',
+            startTime: '08:00',
+            endTime: '10:00'
+          },
+        ]
+      },
     ])
   }, [])
-
-  const deleteQuiz = (id) => {
-    // TODO: delete quiz from firebase
-    console.log("Delete id: ", id);
-  }
 
   const LogoutButton = () => {
     return (
@@ -77,23 +108,25 @@ const Quiz = () => {
           paddingBottom: 16,
         }}
       >
-        {quizes.length > 0 ? (
-          quizes.map((quiz, index) => {
+        {teachers.length > 0 ? (
+          teachers.map((teacher, index) => {
             return (
-              <QuizCard
-                title={quiz.title}
-                subject={quiz.subject}
-                text={quiz.text}
-                choices={quiz.choices}
-                answer={quiz.answer}
-                deleteCallback={() => deleteQuiz(quiz.id)}
+              <TeacherCard
+                name={teacher.name}
+                subject={teacher.subject}
+                biography={teacher.biography}
+                hourlyRate={teacher.hourlyRate}
+                imageUrl={teacher.imageUrl}
+                phoneNumber={teacher.phoneNumber}
+                availableTimes={teacher.availableTimes}
+                enableQuizButton
                 key={index}
               />
             )
           })
           ) : (
             // TODO: Create something better
-            <Text>Nenhum quiz cadastrado</Text>
+            <Text>Nenhum professor disponível</Text>
           )
         }
       </ScrollView>
@@ -101,4 +134,4 @@ const Quiz = () => {
   )
 }
 
-export default Quiz;
+export default Favorites;

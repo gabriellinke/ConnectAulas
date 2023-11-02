@@ -1,20 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
-import { Ionicons } from "@expo/vector-icons";
-import * as Colors from '../../../src/styles/colors.js'
-import { Stack, router } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 
-import HeaderTitle from '../../../src/components/HeaderTitle';
-import QuizCard from '../../../src/components/QuizCardAdmin';
+import HeaderTitle from '../../src/components/HeaderTitle';
+import QuizCard from '../../src/components/QuizCard';
 
-import styles from '../styles';
-import { useAuth } from 'reactfire';
-
+import styles from './styles';
 const Quiz = () => {
   const [quizzes, setQuizzes] = useState([]);
-  const auth = useAuth();
+  const [teacherName, setTeacherName] = useState('');
+  const { id } = useLocalSearchParams();
 
   useEffect(() => {
+    console.log("id ", id);
+
     //TODO: Get teacher quizzes from firebase
     setQuizzes([
       {
@@ -34,53 +33,14 @@ const Quiz = () => {
         answer: 3,
       }
     ])
+
+    // TODO: Get teacher name from firebase
+    setTeacherName('Gabriel Linke');
   }, [])
-
-  const deleteQuiz = (id) => {
-    // TODO: delete quiz from firebase
-    console.log("Delete id: ", id);
-  }
-
-  const CreateButton = () => {
-    return (
-      <TouchableOpacity style={styles.createButtonContainer} onPress={() => router.push('CreateQuiz')}>
-        <Ionicons name={'md-add'} size={32} color={Colors.TEXT_IN_PURPLE_BASE}/>
-        <Text style={styles.textCreateButton}>
-          Criar
-        </Text>
-      </TouchableOpacity>)
-  }
-
-  const LogoutButton = () => {
-    return (
-      <TouchableOpacity style={styles.logoutButtonContainer} onPress={logout}>
-        <Text style={styles.textCreateButton}>
-          Logout
-        </Text>
-      </TouchableOpacity>)
-  }
-
-  const logout = () => {
-    auth.signOut();
-    router.push('Landing');
-  }
-
 
   return (
     <View style={styles.container}>
-      <Stack.Screen
-        options={{
-          headerStyle: {
-            backgroundColor: Colors.PURPLE,
-          },
-          headerTintColor: Colors.TEXT_IN_PURPLE_BASE,
-          headerShadowVisible: false,
-          title: '',
-          headerRight: () => <CreateButton />,
-          headerLeft: () => <LogoutButton />,
-        }}
-      />
-      <HeaderTitle title="Meus Quizzes" />
+      <HeaderTitle title={`Quiz do professor ${teacherName}`} />
 
       <ScrollView
         style={styles.list}

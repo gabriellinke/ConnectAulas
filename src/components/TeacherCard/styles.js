@@ -81,6 +81,15 @@ const styles = StyleSheet.create({
     lineHeight: 24,
   }, 
 
+  quizButtonContainer: {
+    backgroundColor: Colors.SHAPES_02,
+    padding: 24,
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: Colors.LINES_IN_WHITE,
+  },
+
+
   price: {
     // fontFamily: 'Poppins_400Regular',
     color: Colors.TEXT_BASE,

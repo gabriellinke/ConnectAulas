@@ -9,7 +9,7 @@ import TeacherCard from '../../../src/components/TeacherCard/index.js';
 import styles from '../styles';
 import { useAuth } from 'reactfire';
 
-const Quiz = () => {
+const Teacher = () => {
   const [teachers, setTeachers] = useState([]);
   const auth = useAuth();
 
@@ -133,4 +133,4 @@ const Quiz = () => {
   )
 }
 
-export default Quiz;
+export default Teacher;
