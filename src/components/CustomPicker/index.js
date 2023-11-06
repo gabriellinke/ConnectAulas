@@ -20,7 +20,7 @@ const CustomPicker = ({
           >
             <Picker.Item enabled={false} label={"Selecione uma opção"} value={""} />
             {options.map((item, index) => (
-              <Picker.Item key={index} label={item} value={index} />
+              <Picker.Item key={index} label={item} value={item} />
             ))}
           </Picker>
         </View>
