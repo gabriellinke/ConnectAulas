@@ -16,7 +16,7 @@ const CreateQuiz = () => {
   const [choiceC, setChoiceC] = useState('');
   const [choiceD, setChoiceD] = useState('');
   const [answer, setAnswer] = useState();
-  const [answers, setAnswers] = useState(['A','B','C','D']);
+  const choices = ['A','B','C','D'];
 
   const [page, setPage] = useState(1);
 
@@ -90,7 +90,7 @@ const CreateQuiz = () => {
                     <Input label="Alternativa D*" value={choiceD} setValue={setChoiceD} placeholder="Alternativa"/>
                     <CustomPicker 
                       label="Alternativa correta*"
-                      options={answers}
+                      options={choices}
                       value={answer}
                       setValue={setAnswer}
                     />
