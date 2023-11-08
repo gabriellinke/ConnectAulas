@@ -1,17 +1,17 @@
-import { Tabs } from "expo-router";
+import { Tabs, Stack } from "expo-router";
 import { FontAwesome, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import * as Colors from '../../src/styles/colors'
 
 export default () => {
   return (
-    <Tabs screenOptions={{
+    <>
+      <Stack.Screen options={{headerShown: false}}/>
+      <Tabs screenOptions={{
         tabBarShowLabel: true, 
-        headerShown: false,
-        tabBarActiveTintColor: Colors.PURPLE,
-      }}
-    >
+        tabBarActiveTintColor: Colors.PURPLE}}
+      >
       <Tabs.Screen
-        name="teachers"
+        name="Teachers/index"
         options={{
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? "book" : "book-outline"} size={24} color={color} />
@@ -20,7 +20,7 @@ export default () => {
         }}
       />
       <Tabs.Screen
-        name="favorites"
+        name="Favorites/index"
         options={{
           tabBarIcon: ({ color, focused }) => (
             <FontAwesome name={focused ? "heart" : "heart-o"} size={24} color={color} />
@@ -29,7 +29,7 @@ export default () => {
         }}
       />
       <Tabs.Screen
-        name="communities"
+        name="Communities/index"
         options={{
           tabBarIcon: ({ color, focused }) => (
             <MaterialCommunityIcons name={focused ? "account-group" : "account-group-outline"} size={24} color={color} />
@@ -37,7 +37,15 @@ export default () => {
           tabBarLabel: "comunidades",
         }}
       />
+      <Tabs.Screen
+        // Name of the route to hide.
+        name="styles"
+        options={{
+          // This tab will no longer show up in the tab bar.
+          href: null,
+        }}
+      />
     </Tabs>
+  </>
   );
-  // return <Tabs/>
 };

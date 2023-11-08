@@ -41,12 +41,12 @@ const Input = ({
         }
     
         if(text.length > 4) {
-          text = text.substring(0,4);
+          text = text.slice(0,4);
         }
     
         // Insira o caractere ':' automaticamente
-        if (text.length >= 2) {
-          text = text.substring(0, 2) + ':' + text.substring(2);
+        if (text.length >= 3) {
+          text = `${text.slice(0, -2)}:${text.slice(-2)}`;
         }
 
     } else if (maskType === "phone") {
