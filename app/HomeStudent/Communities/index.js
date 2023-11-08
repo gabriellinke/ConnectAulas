@@ -8,6 +8,7 @@ import { Feather, MaterialIcons } from '@expo/vector-icons';
 import HeaderTitle from '../../../src/components/HeaderTitle';
 import CommunityCard from '../../../src/components/CommunityCard';
 import CustomPicker from '../../../src/components/CustomPicker/index.js';
+import NoRecords from '../../../src/components/NoRecords/index.js';
 
 import styles from '../styles';
 import { useAuth } from 'reactfire';
@@ -138,8 +139,7 @@ const Communities = () => {
             )
           })
           ) : (
-            // TODO: Create something better
-            <Text>Nenhuma comunidade cadastrada</Text>
+            <NoRecords text={'Nenhuma comunidade encontrada'} />
           )
         }
       </ScrollView>

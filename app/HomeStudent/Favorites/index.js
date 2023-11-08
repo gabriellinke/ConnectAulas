@@ -5,6 +5,7 @@ import { Stack, router } from "expo-router";
 
 import HeaderTitle from '../../../src/components/HeaderTitle/index.js';
 import TeacherCard from '../../../src/components/TeacherCard/index.js';
+import NoRecords from '../../../src/components/NoRecords/index.js';
 
 import styles from '../styles';
 import { useAuth } from 'reactfire';
@@ -125,8 +126,7 @@ const Favorites = () => {
             )
           })
           ) : (
-            // TODO: Create something better
-            <Text>Nenhum professor disponível</Text>
+            <NoRecords text={'Nenhum professor favoritado'} />
           )
         }
       </ScrollView>

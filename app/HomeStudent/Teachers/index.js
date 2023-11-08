@@ -9,6 +9,7 @@ import HeaderTitle from '../../../src/components/HeaderTitle/index.js';
 import TeacherCard from '../../../src/components/TeacherCard/index.js';
 import CustomPicker from '../../../src/components/CustomPicker/index.js';
 import Input from '../../../src/components/Input/index.js';
+import NoRecords from '../../../src/components/NoRecords/index.js';
 
 import styles from '../styles';
 import { useAuth } from 'reactfire';
@@ -219,8 +220,7 @@ const Teacher = () => {
             )
           })
           ) : (
-            // TODO: Create something better
-            <Text>Nenhum professor disponível</Text>
+            <NoRecords text={'Nenhum professor disponível'} />
           )
         }
       </ScrollView>

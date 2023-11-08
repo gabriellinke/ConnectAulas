@@ -6,6 +6,7 @@ import { Stack, router } from "expo-router";
 
 import HeaderTitle from '../../../src/components/HeaderTitle';
 import QuizCard from '../../../src/components/QuizCardAdmin';
+import NoRecords from '../../../src/components/NoRecords/index.js';
 
 import styles from '../styles';
 import { useAuth } from 'reactfire';
@@ -104,8 +105,7 @@ const Quiz = () => {
             )
           })
           ) : (
-            // TODO: Create something better
-            <Text>Nenhum quiz cadastrado</Text>
+            <NoRecords text={'Nenhum quiz cadastrado'} />
           )
         }
       </ScrollView>

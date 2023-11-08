@@ -6,6 +6,7 @@ import { Stack, router } from "expo-router";
 
 import HeaderTitle from '../../../src/components/HeaderTitle';
 import CommunityCard from '../../../src/components/CommunityCardAdmin';
+import NoRecords from '../../../src/components/NoRecords/index.js';
 
 import styles from '../styles';
 import { useAuth } from 'reactfire';
@@ -100,8 +101,7 @@ const Communities = () => {
             )
           })
           ) : (
-            // TODO: Create something better
-            <Text>Nenhuma comunidade cadastrada</Text>
+            <NoRecords text={'Nenhuma comunidade cadastrada'} />
           )
         }
       </ScrollView>
