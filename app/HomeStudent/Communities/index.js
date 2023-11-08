@@ -18,7 +18,7 @@ const Communities = () => {
   const [areFiltersVisible, setAreFiltersVisible] = useState(false);
 
   const [subjects, setSubjects] = useState([]);
-  const [selectedSubjectIndex, setSelectedSubjectIndex] = useState();
+  const [selectedSubject, setSelectedSubject] = useState();
 
   const auth = useAuth();
 
@@ -67,13 +67,12 @@ const Communities = () => {
   }
 
   async function handleFiltersSubmit() {
-    const subject = subjects[selectedSubjectIndex];
     setAreFiltersVisible(false);
-    if(subject === ''){
+    if(selectedSubject === ''){
       setVisibleCommunities(communities);
       return;
     }
-    setVisibleCommunities(communities.filter(community => community.subject === subject));
+    setVisibleCommunities(communities.filter(community => community.subject === selectedSubject));
   }
 
   return (
@@ -108,8 +107,8 @@ const Communities = () => {
               <CustomPicker 
                 label="Matéria"
                 options={subjects}
-                value={selectedSubjectIndex}
-                setValue={setSelectedSubjectIndex}
+                value={selectedSubject}
+                setValue={setSelectedSubject}
               />
               <RectButton onPress={handleFiltersSubmit} style={styles.submitButton}>
                 <Text style={styles.submitButtonText}>Filtrar</Text>

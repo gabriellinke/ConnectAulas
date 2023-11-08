@@ -20,9 +20,9 @@ const Teacher = () => {
 
   const [areFiltersVisible, setAreFiltersVisible] = useState(false);
   const [subjects, setSubjects] = useState([]);
-  const [selectedSubjectIndex, setSelectedSubjectIndex] = useState(-1);
+  const [selectedSubject, setSelectedSubject] = useState(-1);
   const weekDays = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-  const [selectedWeekDayIndex, setSelectedWeekDayIndex] = useState();
+  const [selectedWeekDay, setSelectedWeekDay] = useState();
   const [filterTime, setFilterTime] = useState('');
 
   useEffect(() => {
@@ -110,8 +110,8 @@ const Teacher = () => {
   async function handleFiltersSubmit() {
     setAreFiltersVisible(false);
 
-    const subject = subjects[selectedSubjectIndex];
-    const weekDay = weekDays[selectedWeekDayIndex];
+    const subject = selectedSubject;
+    const weekDay = selectedWeekDay;
 
     let filteredTeachers = teachers;
     if(subject) {
@@ -163,8 +163,8 @@ const Teacher = () => {
             <CustomPicker 
               label="Matéria"
               options={subjects}
-              value={selectedSubjectIndex}
-              setValue={setSelectedSubjectIndex}
+              value={selectedSubject}
+              setValue={setSelectedSubject}
             />
 
             <View style={styles.inputGroup}>
@@ -172,8 +172,8 @@ const Teacher = () => {
                 <CustomPicker
                   label="Dia da semana"
                   options={weekDays}
-                  value={selectedWeekDayIndex}
-                  setValue={setSelectedWeekDayIndex}
+                  value={selectedWeekDay}
+                  setValue={setSelectedWeekDay}
                 />
               </View>
 
