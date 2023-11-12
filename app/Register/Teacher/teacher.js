@@ -89,6 +89,7 @@ const Teacher = () => {
 
             await setDoc(doc(firestore, "teachers", userCredential.user.uid), {
                 userUid: userCredential.user.uid,
+                name,
                 photoUrl,
                 subject: subjects[selectedSubjectIndex],
                 hourlyRate: price,

@@ -32,6 +32,7 @@ const Student = () => {
 
             await setDoc(doc(firestore, "students", userCredential.user.uid), {
                 userUid: userCredential.user.uid,
+                name,
                 favoriteTeachers: [],
             });
 
