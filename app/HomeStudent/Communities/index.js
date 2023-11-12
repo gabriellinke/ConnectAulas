@@ -4,6 +4,8 @@ import { RectButton } from 'react-native-gesture-handler';
 import * as Colors from '../../../src/styles/colors.js'
 import { Stack, router } from "expo-router";
 import { Feather, MaterialIcons } from '@expo/vector-icons';
+import { useAuth, useFirestore } from 'reactfire';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 import HeaderTitle from '../../../src/components/HeaderTitle';
 import CommunityCard from '../../../src/components/CommunityCard';
@@ -11,40 +13,52 @@ import CustomPicker from '../../../src/components/CustomPicker/index.js';
 import NoRecords from '../../../src/components/NoRecords/index.js';
 
 import styles from '../styles';
-import { useAuth } from 'reactfire';
+
+const useCommunities = (subject) => {
+  const firestore = useFirestore();
+  const [communities, setCommunities] = useState([]);
+
+  useEffect(() => {
+    const fetchCommunities = async () => {
+      try {
+        const communitiesCollection = collection(firestore, "communities");
+        let communitiesQuery;
+
+        if (subject) {
+          communitiesQuery = query(communitiesCollection, where("subject", "==", subject));
+        } else {
+          communitiesQuery = query(communitiesCollection);
+        }
+
+        const querySnapshot = await getDocs(communitiesQuery);
+        const fetchedCommunities = querySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+
+        setCommunities(fetchedCommunities);
+      } catch (error) {
+        console.error("Error fetching communities: ", error);
+      }
+    };
+
+    fetchCommunities();
+  }, [subject]);
+
+  return communities;
+};
 
 const Communities = () => {
-  const [communities, setCommunities] = useState([]);
-  const [visibleCommunities, setVisibleCommunities] = useState([]);
   const [areFiltersVisible, setAreFiltersVisible] = useState(false);
 
   const [subjects, setSubjects] = useState([]);
-  const [selectedSubject, setSelectedSubject] = useState();
+  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [filterSubject, setFilterSubject] = useState(null);
 
   const auth = useAuth();
+  const communities = useCommunities(filterSubject);
 
   useEffect(() => {
-    //TODO: Get all communities from firebase
-    const allCommunities = [
-      {
-        id: 1,
-        name: "Aulas de Código Penal",
-        subject: "Matemática",
-        description: "Comunidade para estudo do código penal, especialmente o artigo Jacaré.\n\n Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
-        externalUrl: "",
-      },
-      {
-        id: 2,
-        name: "Grupo de estudos",
-        subject: "Geografia",
-        description: "Comunidade para estudo do código penal, especialmente o artigo Jacaré.\n\n Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
-        externalUrl: "",
-      }
-    ]
-
-    setCommunities(allCommunities);
-    setVisibleCommunities(allCommunities);
-
     //TODO: Get all subjects from firebase
     setSubjects(["Matemática", "História", "Geografia"]);
   }, [])
@@ -69,11 +83,7 @@ const Communities = () => {
 
   async function handleFiltersSubmit() {
     setAreFiltersVisible(false);
-    if(selectedSubject === ''){
-      setVisibleCommunities(communities);
-      return;
-    }
-    setVisibleCommunities(communities.filter(community => community.subject === selectedSubject));
+    setFilterSubject(selectedSubject);
   }
 
   return (
@@ -126,8 +136,8 @@ const Communities = () => {
           paddingBottom: 16,
         }}
       >
-        {visibleCommunities.length > 0 ? (
-          visibleCommunities.map((community, index) => {
+        {communities.length > 0 ? (
+          communities.map((community, index) => {
             return (
               <CommunityCard
                 name={community.name}
