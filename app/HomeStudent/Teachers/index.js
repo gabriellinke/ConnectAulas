@@ -4,6 +4,8 @@ import { RectButton } from 'react-native-gesture-handler';
 import * as Colors from '../../../src/styles/colors.js'
 import { Stack, router } from "expo-router";
 import { Feather, MaterialIcons } from '@expo/vector-icons';
+import { useAuth, useFirestore } from 'reactfire';
+import { collection, onSnapshot, query, where } from 'firebase/firestore';
 
 import HeaderTitle from '../../../src/components/HeaderTitle/index.js';
 import TeacherCard from '../../../src/components/TeacherCard/index.js';
@@ -12,80 +14,73 @@ import Input from '../../../src/components/Input/index.js';
 import NoRecords from '../../../src/components/NoRecords/index.js';
 
 import styles from '../styles';
-import { useAuth } from 'reactfire';
+
+const useFetchTeachers = (subject, weekDay, startTime) => {
+  const [teachers, setTeachers] = useState([]);
+  const firestore = useFirestore();
+
+  const isTimeInRange = (startTime, endTime, targetTime) => {
+    const start = convertTimeToMinutes(startTime);
+    const end = convertTimeToMinutes(endTime);
+    const target = convertTimeToMinutes(targetTime);
+    return target >= start && target <= end;
+  };
+  
+  const convertTimeToMinutes = (timeString) => {
+    const [hours, minutes] = timeString.split(':').map(Number);
+    return hours * 60 + minutes;
+  };
+
+  useEffect(() => {
+    const teachersCollection = collection(firestore, "teachers");
+    let teachersQuery = teachersCollection;
+
+    if (subject) {
+      teachersQuery = query(teachersCollection, where("subject", "==", subject));
+    }
+
+    const unsubscribe = onSnapshot(teachersQuery, (querySnapshot) => {
+      const fetchedTeachers = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      const filteredTeachers = fetchedTeachers.filter(teacher => 
+        teacher.availableTimes.some(time => 
+          ((weekDay != null && time.weekDay === weekDay) || (weekDay == null))
+          && ((startTime !== "" && isTimeInRange(time.startTime, time.endTime, startTime)) || startTime === "")
+        )
+      );
+
+      setTeachers(filteredTeachers);
+    }, (error) => {
+      console.error("Error fetching teachers: ", error);
+    });
+
+    return () => unsubscribe();
+  }, [subject, weekDay, startTime]);
+
+  return teachers;
+};
 
 const Teacher = () => {
-  const [teachers, setTeachers] = useState([]);
-  const [visibleTeachers, setVisibleTeachers] = useState([]);
   const auth = useAuth();
 
   const [areFiltersVisible, setAreFiltersVisible] = useState(false);
   const [subjects, setSubjects] = useState([]);
-  const [selectedSubject, setSelectedSubject] = useState(-1);
   const weekDays = ["Domingo", "Segunda-feira", "Terça-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sábado"];
-  const [selectedWeekDay, setSelectedWeekDay] = useState();
+  
+  const [selectedSubject, setSelectedSubject] = useState(null);
+  const [selectedWeekDay, setSelectedWeekDay] = useState(null);
+  const [selectedTime, setSelectedTime] = useState('');
+
+  const [filterSubject, setFilterSubject] = useState(null);
+  const [filterWeekDay, setFilterWeekDay] = useState(null);
   const [filterTime, setFilterTime] = useState('');
 
+  const teachers = useFetchTeachers(filterSubject, filterWeekDay, filterTime);
+
   useEffect(() => {
-    //TODO: Get teacher from firebase
-    const allTeachers = [
-      {
-        id: 1,
-        name: "Gabriel Linke",
-        subject: "Matemática",
-        biography: "Essa é uma questão que poderia estar no quiz de algum professor. Abaixo está o enunciado mais detalhado. Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
-        hourlyRate: '50',
-        imageUrl: 'https://avatars.githubusercontent.com/u/51447706?v=4',
-        phoneNumber: '49988607303',
-        availableTimes: [
-          {
-            weekDay: 'Segunda-feira',
-            startTime: '08:00',
-            endTime: '10:00'
-          },
-          {
-            weekDay: 'Quarta-feira',
-            startTime: '08:00',
-            endTime: '10:00'
-          },
-          {
-            weekDay: 'Sexta-feira',
-            startTime: '08:00',
-            endTime: '10:00'
-          },
-        ]
-      },
-      {
-        id: 2,
-        name: "Doutor Gilmar",
-        subject: "Código penal",
-        biography: "Essa é uma questão que poderia estar no quiz de algum professor. Abaixo está o enunciado mais detalhado. Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
-        hourlyRate: '200',
-        imageUrl: 'https://pbs.twimg.com/profile_images/1481641726/Sem_t_tulo_400x400.jpg',
-        phoneNumber: '49999861229',
-        availableTimes: [
-          {
-            weekDay: 'Segunda-feira',
-            startTime: '08:00',
-            endTime: '10:00'
-          },
-          {
-            weekDay: 'Quarta-feira',
-            startTime: '08:00',
-            endTime: '10:00'
-          },
-          {
-            weekDay: 'Sexta-feira',
-            startTime: '08:00',
-            endTime: '10:00'
-          },
-        ]
-      },
-    ]
-
-    setTeachers(allTeachers)
-    setVisibleTeachers(allTeachers)
-
     //TODO: Get all subjects from firebase
     setSubjects(["Matemática", "História", "Geografia", "Código penal"]);
   }, [])
@@ -111,25 +106,9 @@ const Teacher = () => {
   async function handleFiltersSubmit() {
     setAreFiltersVisible(false);
 
-    const subject = selectedSubject;
-    const weekDay = selectedWeekDay;
-
-    let filteredTeachers = teachers;
-    if(subject) {
-      filteredTeachers = filteredTeachers.filter(teacher => teacher.subject === subject);
-    }
-    if(weekDay) {
-      filteredTeachers = filteredTeachers.filter(teacher => {
-        return teacher.availableTimes.some(time => time.weekDay === weekDay);
-      });
-    }
-    if(filterTime !== '') {
-      filteredTeachers = filteredTeachers.filter(teacher => {
-        return teacher.availableTimes.some(time => time.startTime === filterTime);
-      });
-    }
-
-    setVisibleTeachers(filteredTeachers);
+    setFilterSubject(selectedSubject);
+    setFilterWeekDay(selectedWeekDay);
+    setFilterTime(selectedTime);
   }
 
   return (
@@ -182,8 +161,8 @@ const Teacher = () => {
                 <Input
                   label='Horário de início'
                   placeholder="Qual horário?"
-                  value={filterTime}
-                  setValue={setFilterTime}
+                  value={selectedTime}
+                  setValue={setSelectedTime}
                   maskType='schedule'
                 />
               </View>
@@ -204,15 +183,16 @@ const Teacher = () => {
           paddingBottom: 16,
         }}
       >
-        {visibleTeachers.length > 0 ? (
-          visibleTeachers.map((teacher, index) => {
+        {teachers.length > 0 ? (
+          teachers.map((teacher, index) => {
             return (
               <TeacherCard
+                id={teacher.id}
                 name={teacher.name}
                 subject={teacher.subject}
                 biography={teacher.biography}
                 hourlyRate={teacher.hourlyRate}
-                imageUrl={teacher.imageUrl}
+                photoUrl={teacher.photoUrl}
                 phoneNumber={teacher.phoneNumber}
                 availableTimes={teacher.availableTimes}
                 key={index}
