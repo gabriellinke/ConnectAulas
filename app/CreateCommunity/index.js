@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { View, Text } from "react-native";
 import { router } from "expo-router";
+import { collection, addDoc, doc, updateDoc, arrayUnion } from "firebase/firestore";
+import { useAuth, useFirestore } from "reactfire";
 
 import styles from './styles';
 import Input from "../../src/components/Input";
@@ -8,14 +10,46 @@ import Button from "../../src/components/Button";
 import CustomPicker from "../../src/components/CustomPicker";
 
 const CreateCommunity = () => {
+  const auth = useAuth();
+  const firestore = useFirestore();
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [selectedSubject, setSelectedSubject] = useState('');
+  const [subject, setSubject] = useState('');
   const [subjects, setSubjects] = useState([]);
   const [externalUrl, setExternalUrl] = useState('');
 
+  const teacherId = auth.currentUser.uid;
+
+  const createNewCommunity = async (communityData) => {
+    try {
+      const communitiesCollectionRef = collection(firestore, "communities");
+      const communityResponse = await addDoc(communitiesCollectionRef, communityData);
+  
+      const newCommunityRef = doc(firestore, `communities/${communityResponse.id}`);
+  
+      const teacherDocRef = doc(firestore, `teachers/${teacherId}`);
+      await updateDoc(teacherDocRef, {
+        communities: arrayUnion(newCommunityRef)
+      });
+  
+      console.log(`Community created with ID: ${communityResponse.id}`);
+      return communityResponse.id;
+    } catch (error) {
+      console.error("Error creating new community: ", error);
+      throw error;
+    }
+  };
+
   const handleCommunityCreation = async () => {
-    // TODO: Create community
+    await createNewCommunity({
+      name,
+      description,
+      subject,
+      externalUrl,
+      teacherId,
+    });
+
     router.back();
   }
 
@@ -35,8 +69,8 @@ const CreateCommunity = () => {
               <CustomPicker 
                 label="Matéria"
                 options={subjects}
-                value={selectedSubject}
-                setValue={setSelectedSubject}
+                value={subject}
+                setValue={setSubject}
               />
               <Input label="Link para o grupo do whatsapp*" value={externalUrl} setValue={setExternalUrl} placeholder="https://chat.whatsapp.com/abc123"/>
               <View style={[styles.buttonGroup, {marginTop: 16}]}>
