@@ -1,42 +1,73 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams } from "expo-router";
+import { doc, getDoc, Timestamp } from 'firebase/firestore';
+import { useFirestore } from 'reactfire';
 
 import HeaderTitle from '../../src/components/HeaderTitle';
 import QuizCard from '../../src/components/QuizCard';
 
 import styles from './styles';
-const Quiz = () => {
-  const [quizzes, setQuizzes] = useState([]);
-  const [teacherName, setTeacherName] = useState('');
-  const { id } = useLocalSearchParams();
+
+const useRecentTeacherQuestions = (teacherUid) => {
+  const firestore = useFirestore();
+  const [recentQuestions, setRecentQuestions] = useState([]);
 
   useEffect(() => {
-    console.log("id ", id);
+    const teacherDocRef = doc(firestore, `teachers/${teacherUid}`);
 
-    //TODO: Get teacher quizzes from firebase
-    setQuizzes([
-      {
-        id: 1,
-        title: "Título da questão",
-        subject: "Conteúdo",
-        text: "Essa é uma questão que poderia estar no quiz de algum professor. Abaixo está o enunciado mais detalhado. Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
-        choices: ["Alternativa A", "Alternativa B", "Alternativa C", "Alternativa D"],
-        answer: 0,
-      },
-      {
-        id: 2,
-        title: "Título da questão 2",
-        subject: "Conteúdo diferente",
-        text: "Essa é uma questão que poderia estar no quiz de algum professor. Abaixo está o enunciado mais detalhado. Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
-        choices: ["Alternativa A", "Alternativa B", "Alternativa C", "Alternativa D"],
-        answer: 3,
+    const fetchRecentQuestions = async (questionRefs) => {
+      const questionsPromises = questionRefs.map(ref => getDoc(ref));
+      const questionsDocs = await Promise.all(questionsPromises);
+      const currentTime = Timestamp.now();
+      const twentyFourHoursAgo = new Timestamp(currentTime.seconds - 86400, currentTime.nanoseconds);
+
+      const recentQuestions = questionsDocs
+        .map(doc => ({ id: doc.id, ...doc.data() }))
+        .filter(question => question.createdAt && question.createdAt.toDate() > twentyFourHoursAgo.toDate());
+
+      setRecentQuestions(recentQuestions);
+    };
+
+    getDoc(teacherDocRef).then((doc) => {
+      const teacherData = doc.data();
+      const questionRefs = teacherData?.questions || [];
+      fetchRecentQuestions(questionRefs);
+    }).catch((error) => {
+      console.error("Error fetching recent questions: ", error);
+    });
+  }, [teacherUid]);
+
+  return recentQuestions;
+};
+
+const useTeacherName = (teacherUid) => {
+  const firestore = useFirestore();
+  const [teacherName, setTeacherName] = useState('');
+
+  useEffect(() => {
+    const teacherDocRef = doc(firestore, `teachers/${teacherUid}`);
+
+    getDoc(teacherDocRef).then((doc) => {
+      if (doc.exists()) {
+        const teacherData = doc.data();
+        setTeacherName(teacherData.name);
+      } else {
+        console.log('No such teacher!');
       }
-    ])
+    }).catch((error) => {
+      console.error("Error fetching teacher's name: ", error);
+    });
+  }, [teacherUid]);
 
-    // TODO: Get teacher name from firebase
-    setTeacherName('Gabriel Linke');
-  }, [])
+  return teacherName;
+};
+
+const Quiz = () => {
+  const { id } = useLocalSearchParams();
+
+  const quizzes = useRecentTeacherQuestions(id);
+  const teacherName = useTeacherName(id);
 
   return (
     <View style={styles.container}>
