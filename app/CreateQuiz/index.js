@@ -1,13 +1,20 @@
 import { useState } from "react";
 import { View, Text, ToastAndroid, ScrollView } from "react-native";
 import { router } from "expo-router";
+import { useAuth, useFirestore } from "reactfire";
+import { collection, addDoc, doc, updateDoc, arrayUnion, Timestamp } from "firebase/firestore";
 
-import styles from './styles';
+import styles from "./styles";
 import Input from "../../src/components/Input";
 import Button from "../../src/components/Button";
 import CustomPicker from "../../src/components/CustomPicker";
 
 const CreateQuiz = () => {
+  const firestore = useFirestore();
+  const auth = useAuth();
+
+  const teacherId = auth.currentUser.uid;
+
   const [title, setTitle] = useState('');
   const [subject, setSubject] = useState('');
   const [text, setText] = useState('');
@@ -20,8 +27,40 @@ const CreateQuiz = () => {
 
   const [page, setPage] = useState(1);
 
+  const createNewQuestion = async (questionData) => {
+    try {
+      const questionsCollectionRef = collection(firestore, "questions");
+      const extendedQuestionData = {
+        ...questionData,
+        createdAt: Timestamp.now(),
+      };
+      const questionResponse = await addDoc(questionsCollectionRef, extendedQuestionData);
+  
+      const newQuestionRef = doc(firestore, `questions/${questionResponse.id}`);
+  
+      const teacherDocRef = doc(firestore, `teachers/${teacherId}`);
+      await updateDoc(teacherDocRef, {
+        questions: arrayUnion(newQuestionRef)
+      });
+  
+      console.log(`Question created with ID: ${questionResponse.id}`);
+      return questionResponse.id;
+    } catch (error) {
+      console.error("Error creating new question: ", error);
+      throw error;
+    }
+  };
+
   const handleQuizCreation = async () => {
-    // TODO: Create community
+    await createNewQuestion({
+      title,
+      text,
+      choices: [choiceA, choiceB, choiceC, choiceD],
+      answer: 0,
+      subject,
+      teacherId,
+    });
+
     router.back();
   }
 
