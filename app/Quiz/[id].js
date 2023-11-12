@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams } from "expo-router";
-import { doc, getDoc, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot, Timestamp } from 'firebase/firestore';
 import { useFirestore } from 'reactfire';
 
 import HeaderTitle from '../../src/components/HeaderTitle';
@@ -15,27 +15,52 @@ const useRecentTeacherQuestions = (teacherUid) => {
 
   useEffect(() => {
     const teacherDocRef = doc(firestore, `teachers/${teacherUid}`);
+    let questionUnsubscribeFunctions = [];
 
-    const fetchRecentQuestions = async (questionRefs) => {
-      const questionsPromises = questionRefs.map(ref => getDoc(ref));
-      const questionsDocs = await Promise.all(questionsPromises);
-      const currentTime = Timestamp.now();
-      const twentyFourHoursAgo = new Timestamp(currentTime.seconds - 86400, currentTime.nanoseconds);
+    const updateQuestionListeners = (questionRefs) => {
+      questionUnsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+      questionUnsubscribeFunctions = [];
 
-      const recentQuestions = questionsDocs
-        .map(doc => ({ id: doc.id, ...doc.data() }))
-        .filter(question => question.createdAt && question.createdAt.toDate() > twentyFourHoursAgo.toDate());
+      questionRefs.forEach(ref => {
+        const unsubscribe = onSnapshot(ref, (questionDoc) => {
+          if (questionDoc.exists()) {
+            const questionData = questionDoc.data();
+            const currentTime = Timestamp.now();
+            const twentyFourHoursAgo = new Timestamp(currentTime.seconds - 86400, currentTime.nanoseconds);
 
-      setRecentQuestions(recentQuestions);
+            if (questionData.createdAt && questionData.createdAt.toDate() > twentyFourHoursAgo.toDate()) {
+              setRecentQuestions(prevQuestions => {
+                const existingIndex = prevQuestions.findIndex(q => q.id === questionDoc.id);
+                if (existingIndex > -1) {
+                  return prevQuestions.map((q, index) => index === existingIndex ? { id: questionDoc.id, ...questionData } : q);
+                } else {
+                  return [...prevQuestions, { id: questionDoc.id, ...questionData }];
+                }
+              });
+            } else {
+              setRecentQuestions(prevQuestions => prevQuestions.filter(q => q.id !== questionDoc.id));
+            }
+          } else {
+            setRecentQuestions(prevQuestions => prevQuestions.filter(q => q.id !== questionDoc.id));
+          }
+        });
+
+        questionUnsubscribeFunctions.push(unsubscribe);
+      });
     };
 
-    getDoc(teacherDocRef).then((doc) => {
-      const teacherData = doc.data();
-      const questionRefs = teacherData?.questions || [];
-      fetchRecentQuestions(questionRefs);
-    }).catch((error) => {
-      console.error("Error fetching recent questions: ", error);
+    const teacherUnsubscribe = onSnapshot(teacherDocRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const teacherData = docSnapshot.data();
+        const questionRefs = teacherData?.questions || [];
+        updateQuestionListeners(questionRefs);
+      }
     });
+
+    return () => {
+      questionUnsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+      teacherUnsubscribe();
+    };
   }, [teacherUid]);
 
   return recentQuestions;
