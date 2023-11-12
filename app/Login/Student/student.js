@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { View, Text, ToastAndroid } from "react-native";
 import { router } from "expo-router";
-import { useAuth } from "reactfire";
+import { useAuth, useFirestore } from "reactfire";
 import { signInWithEmailAndPassword } from "@firebase/auth";
 import { FirebaseError } from "@firebase/util";
+import { doc, getDoc } from "firebase/firestore";
 
 import styles from '../styles';
 import Input from "../../../src/components/Input";
@@ -15,12 +16,39 @@ const Student = () => {
     const [password, setPassword] = useState();
 
     const auth = useAuth();
+    const firestore = useFirestore();
+  
+    const isStudent = async (uid) => {
+      try {
+        const studentDocRef = doc(firestore, `students/${uid}`);
+        const docSnapshot = await getDoc(studentDocRef);
+    
+        return docSnapshot.exists();
+      } catch (error) {
+        console.error("Error checking teacher existence: ", error);
+        throw error;
+      }
+    }
     
     const handleLogin = async () => {
         console.log("Login student");
 
         try {
             await signInWithEmailAndPassword(auth, email, password);
+
+            try {
+                if (!auth.currentUser || !(await isStudent(auth.currentUser.uid))) {
+                    ToastAndroid.show("Usuário não é professor", ToastAndroid.LONG)
+                    return;
+                }
+            }
+            catch {
+                ToastAndroid.show("Erro na verificação de usuário", ToastAndroid.LONG)
+                return;
+            }
+            finally {
+                await auth.signOut();
+            }
 
             router.replace({pathname: "HomeStudent"});
         }
