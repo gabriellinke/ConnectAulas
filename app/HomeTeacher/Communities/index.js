@@ -3,42 +3,64 @@ import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import * as Colors from '../../../src/styles/colors.js'
 import { Stack, router } from "expo-router";
+import { collection, doc, deleteDoc, updateDoc, query, where, onSnapshot, arrayRemove } from "firebase/firestore";
+import { useAuth, useFirestore } from "reactfire";
 
 import HeaderTitle from '../../../src/components/HeaderTitle';
 import CommunityCard from '../../../src/components/CommunityCardAdmin';
 import NoRecords from '../../../src/components/NoRecords/index.js';
 
 import styles from '../styles';
-import { useAuth } from 'reactfire';
 
-const Communities = () => {
+const useCommunitiesByTeacher = (teacherId) => {
+  const firestore = useFirestore();
   const [communities, setCommunities] = useState([]);
-  const auth = useAuth();
 
   useEffect(() => {
-    //TODO: Get teacher communities from firebase
-    setCommunities([
-      {
-        id: 1,
-        name: "Aulas de Código Penal",
-        subject: "Professor Gilmar",
-        description: "Comunidade para estudo do código penal, especialmente o artigo Jacaré.\n\n Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
-        externalUrl: "",
-      },
-      {
-        id: 2,
-        name: "Grupo de estudos",
-        subject: "Matéria de Matemática",
-        description: "Comunidade para estudo do código penal, especialmente o artigo Jacaré.\n\n Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
-        externalUrl: "",
-      }
-    ])
-  }, [])
+    const communitiesCollectionRef = collection(firestore, "communities");
+    const communitiesQuery = query(communitiesCollectionRef, where("teacherId", "==", teacherId));
 
-  const deleteCommunity = (id) => {
-    // TODO: delete quiz from firebase
-    console.log("Delete id: ", id);
-  }
+    const unsubscribe = onSnapshot(communitiesQuery, (querySnapshot) => {
+      const fetchedCommunities = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setCommunities(fetchedCommunities);
+    }, (error) => {
+      console.error("Error fetching communities: ", error);
+    });
+
+    return () => unsubscribe();
+  }, [teacherId]);
+
+  return communities;
+};
+
+const Communities = () => {
+  const auth = useAuth();
+  const firestore = useFirestore();
+
+  const teacherId = auth.currentUser.uid;
+  const communities = useCommunitiesByTeacher(teacherId);
+
+  const deleteCommunity = async (id) => {
+    try {
+      const communityDocRef = doc(firestore, `communities/${id}`);
+  
+      await deleteDoc(communityDocRef);
+  
+      const teacherDocRef = doc(firestore, `teachers/${teacherId}`);
+  
+      await updateDoc(teacherDocRef, {
+        communities: arrayRemove(communityDocRef)
+      });
+  
+      console.log(`Community ${id} deleted successfully.`);
+    } catch (error) {
+      console.error("Error deleting community: ", error);
+      throw error;
+    }
+  };
 
   const CreateButton = () => {
     return (
