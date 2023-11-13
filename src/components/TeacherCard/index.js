@@ -60,7 +60,7 @@ const TeacherCard = ({ id, name, subject, biography, hourlyRate, imageUrl, phone
   const firestore = useFirestore();
   const auth = useAuth();
 
-  const studentId = auth.currentUser.uid;
+  const studentId = (auth.currentUser || {}).uid;
   const isFavorited = useIsTeacherFavorited(studentId, id);
 
   const handleLinkToWhatsapp = () => {

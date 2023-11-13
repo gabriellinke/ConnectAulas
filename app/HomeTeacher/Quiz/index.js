@@ -73,7 +73,7 @@ const Quiz = () => {
   const auth = useAuth();
   const firestore = useFirestore();
 
-  const teacherId = auth.currentUser.uid;
+  const teacherId = (auth.currentUser || {}).uid;
   const quizzes = useRecentTeacherQuestions(teacherId);
 
   const deleteQuiz = async (id) => {

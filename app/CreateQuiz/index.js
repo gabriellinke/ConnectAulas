@@ -13,7 +13,7 @@ const CreateQuiz = () => {
   const firestore = useFirestore();
   const auth = useAuth();
 
-  const teacherId = auth.currentUser.uid;
+  const teacherId = (auth.currentUser || {}).uid;
 
   const [title, setTitle] = useState('');
   const [subject, setSubject] = useState('');

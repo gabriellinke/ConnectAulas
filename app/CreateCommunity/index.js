@@ -19,7 +19,7 @@ const CreateCommunity = () => {
   const [subjects, setSubjects] = useState([]);
   const [externalUrl, setExternalUrl] = useState('');
 
-  const teacherId = auth.currentUser.uid;
+  const teacherId = (auth.currentUser || {}).uid;
 
   const createNewCommunity = async (communityData) => {
     try {

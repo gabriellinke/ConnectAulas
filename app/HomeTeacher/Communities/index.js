@@ -40,7 +40,7 @@ const Communities = () => {
   const auth = useAuth();
   const firestore = useFirestore();
 
-  const teacherId = auth.currentUser.uid;
+  const teacherId = (auth.currentUser || {}).uid;
   const communities = useCommunitiesByTeacher(teacherId);
 
   const deleteCommunity = async (id) => {
