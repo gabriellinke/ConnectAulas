@@ -3,9 +3,26 @@ import { View, Text, Linking } from 'react-native';
 import styles from './styles';
 import { RectButton } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useFirestore } from "reactfire";
+import { doc, updateDoc, increment } from "firebase/firestore";
 
 const CommunityCardAdmin = ({ name, subject, description, externalUrl }) => {
-    const handleLinkToWhatsapp = () => {
+    const firestore = useFirestore();
+
+    const handleLinkToWhatsapp = async () => {
+        try {
+            const connectionsMetricsRef = doc(firestore, "metrics/connections");
+
+            await updateDoc(connectionsMetricsRef, {
+              count: increment(1),
+            });
+        
+            console.log("Connections count incremented successfully.");
+        } catch (error) {
+            console.error("Error incrementing connections count: ", error);
+            throw error;
+        }
+
         Linking.openURL(`${externalUrl}`)
     }    
 

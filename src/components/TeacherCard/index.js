@@ -3,7 +3,7 @@ import { View, Image, Text, Linking } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { router } from 'expo-router';
-import { doc, getDoc, updateDoc, onSnapshot, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { doc, getDoc, updateDoc, onSnapshot, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { useAuth, useFirestore } from 'reactfire';
 
 import Button from '../Button';
@@ -63,7 +63,20 @@ const TeacherCard = ({ id, name, subject, biography, hourlyRate, imageUrl, phone
   const studentId = (auth.currentUser || {}).uid;
   const isFavorited = useIsTeacherFavorited(studentId, id);
 
-  const handleLinkToWhatsapp = () => {
+  const handleLinkToWhatsapp = async () => {
+    try {
+      const connectionsMetricsRef = doc(firestore, "metrics/connections");
+
+      await updateDoc(connectionsMetricsRef, {
+        count: increment(1),
+      });
+    
+      console.log("Connections count incremented successfully.");
+    } catch (error) {
+      console.error("Error incrementing connections count: ", error);
+      throw error;
+    }
+
     Linking.openURL(`whatsapp://send?phone=${phoneNumber}`)
   }
 
