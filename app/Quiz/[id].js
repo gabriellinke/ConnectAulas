@@ -3,6 +3,7 @@ import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams } from "expo-router";
 import { doc, getDoc, onSnapshot, Timestamp } from 'firebase/firestore';
 import { useFirestore } from 'reactfire';
+import NoRecords from '../../src/components/NoRecords/index.js';
 
 import HeaderTitle from '../../src/components/HeaderTitle';
 import QuizCard from '../../src/components/QuizCard';
@@ -120,7 +121,7 @@ const Quiz = () => {
             )
           })
           ) : (
-            <Text>Nenhum quiz cadastrado</Text>
+            <NoRecords text={'Nenhum quiz cadastrado'} />
           )
         }
       </ScrollView>
