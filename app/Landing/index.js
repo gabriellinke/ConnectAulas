@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Image, Text } from "react-native";
 import landingImg from '../../src/assets/home_image.png';
 import studyIcon from '../../src/assets/study_icon.png';
@@ -6,10 +6,32 @@ import giveClassesIcon from '../../src/assets/give_classes_icon.png';
 import heartIcon from '../../src/assets/connections_heart_icon.png';
 import styles from './styles';
 import { Link } from 'expo-router';
-import Input from "../../src/components/Input";
+import { useFirestore } from "reactfire";
+import { doc, onSnapshot } from "firebase/firestore";
+
+const useConnectionsCount = () => {
+  const firestore = useFirestore();
+
+  const [connectionsCount, setConnectionsCount] = useState(0);
+
+  const connectionsRef = doc(firestore, "metrics/connections");
+
+  useEffect(() => {
+    const unsubscribeConnections = onSnapshot(connectionsRef, (doc) => {
+      if (doc.exists()) {
+        setConnectionsCount(doc.data().count);
+      }
+    });
+
+    return () => unsubscribeConnections();
+  }, []);
+
+  return connectionsCount;
+};
 
 const Home = () => {
-  const [conections, setConections] = useState(285); 
+  const connectionsCount = useConnectionsCount();
+
   return (
     <View style={styles.container}>
         <Image source={landingImg} style={styles.banner}/>
@@ -37,7 +59,7 @@ const Home = () => {
         </View>
 
         <Text style={styles.totalConnections}>
-            Total de {conections} conexões já realizadas {' '}
+            Total de {connectionsCount} conexões já realizadas {' '}
             <Image source={heartIcon}/>
         </Text>
         <Link href={{ pathname: 'Metrics' }} style={styles.linkAppInfo}>Veja mais</Link>
