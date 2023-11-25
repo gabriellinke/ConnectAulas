@@ -41,7 +41,7 @@ const useFavoriteTeachers = (studentUid) => {
 
 const Favorites = () => {
   const auth = useAuth();
-  const teachers = useFavoriteTeachers(auth.currentUser.uid);
+  const teachers = useFavoriteTeachers((auth.currentUser || {}).uid);
 
   const LogoutButton = () => {
     return (
