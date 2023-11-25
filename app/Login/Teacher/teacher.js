@@ -9,11 +9,13 @@ import { doc, getDoc } from "firebase/firestore";
 import styles from '../styles';
 import Input from "../../../src/components/Input";
 import Button from "../../../src/components/Button";
+import LoadingScreen from "../../../src/components/LoadingScreen";
 import { getErrorMessage } from "../../../src/utils/firebase/errors";
 
 const Teacher = () => {
     const [email, setEmail] = useState();
     const [password, setPassword] = useState();
+    const [triedAutoLogin, setTriedAutoLogin] = useState(false);
 
     const auth = useAuth();
     const firestore = useFirestore();
@@ -62,14 +64,23 @@ const Teacher = () => {
     }
 
     const autoLogin = async () => {
-        if (auth.currentUser != null && (await isTeacher(auth.currentUser.uid))) {
-            router.replace({pathname: "HomeTeacher"});
+        try {
+            if (auth.currentUser != null && (await isTeacher(auth.currentUser.uid))) {
+                router.replace({pathname: "HomeTeacher"});
+            }
+        }
+        finally {
+            setTriedAutoLogin(true);
         }
     };
 
     useEffect(() => {
         autoLogin();
     }, []);
+
+    if (!triedAutoLogin) {
+        return <LoadingScreen />;
+    }
 
     return (
         <View>
