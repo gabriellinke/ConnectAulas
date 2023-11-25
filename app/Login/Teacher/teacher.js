@@ -38,16 +38,14 @@ const Teacher = () => {
 
             try {
                 if (!auth.currentUser || !(await isTeacher(auth.currentUser.uid))) {
-                    ToastAndroid.show("Usuário não é professor", ToastAndroid.LONG)
-                    return;
+                    ToastAndroid.show("Usuário não é professor", ToastAndroid.LONG);
+                    await auth.signOut();
                 }
             }
             catch {
-                ToastAndroid.show("Erro na verificação de usuário", ToastAndroid.LONG)
-                return;
-            }
-            finally {
+                ToastAndroid.show("Erro na verificação de usuário", ToastAndroid.LONG);
                 await auth.signOut();
+                return;
             }
 
             router.replace({pathname: "HomeTeacher"});
