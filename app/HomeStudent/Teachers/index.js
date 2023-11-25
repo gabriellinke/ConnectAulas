@@ -81,7 +81,6 @@ const Teacher = () => {
   const teachers = useFetchTeachers(filterSubject, filterWeekDay, filterTime);
 
   useEffect(() => {
-    //TODO: Get all subjects from firebase
     setSubjects(["Matemática", "História", "Geografia", "Código penal"]);
   }, [])
 

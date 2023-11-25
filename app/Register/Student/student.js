@@ -22,8 +22,6 @@ const Student = () => {
     const handleAccountCreation = async () => {
         console.log("Cadastro do aluno");
 
-        // TODO: validar inputs
-
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             await updateProfile(userCredential.user, {

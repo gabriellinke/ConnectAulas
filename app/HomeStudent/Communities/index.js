@@ -59,7 +59,6 @@ const Communities = () => {
   const communities = useCommunities(filterSubject);
 
   useEffect(() => {
-    //TODO: Get all subjects from firebase
     setSubjects(["Matemática", "História", "Geografia"]);
   }, [])
 

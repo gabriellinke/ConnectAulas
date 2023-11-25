@@ -116,7 +116,6 @@ const Teacher = () => {
     }
 
     useEffect(() => {
-        // TODO: Pegar matérias do banco de dados
         setSubjects(["Matemática", "História", "Geografia"]);
     }, [])
 

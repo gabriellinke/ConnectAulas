@@ -120,7 +120,6 @@ const Quiz = () => {
             )
           })
           ) : (
-            // TODO: Create something better
             <Text>Nenhum quiz cadastrado</Text>
           )
         }

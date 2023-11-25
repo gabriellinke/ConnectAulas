@@ -54,7 +54,6 @@ const CreateCommunity = () => {
   }
 
   useEffect(() => {
-    // TODO: Pegar matérias do banco de dados
     setSubjects(["Matemática", "História", "Geografia"]);
   }, [])
 
