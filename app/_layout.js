@@ -1,5 +1,6 @@
 import { Stack } from "expo-router";
 import * as Colors from '../src/styles/colors'
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   FirebaseAppProvider,
   AuthProvider,
@@ -7,9 +8,9 @@ import {
   FirestoreProvider,
   useFirebaseApp,
 } from "reactfire";
-import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { initializeAuth, getReactNativePersistence } from "firebase/auth/react-native";
 
 const firebaseConfig = {
   apiKey: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
@@ -23,7 +24,17 @@ const firebaseConfig = {
 const FirebaseProviders = ({ children }) => {
   const firebaseApp = useFirebaseApp();
 
-  const auth = getAuth(firebaseApp);
+  const authProvider = firebaseApp.container.getProvider("auth");
+  let auth;
+
+  if (authProvider.isInitialized()) {
+    auth = authProvider.getImmediate();
+  } else {
+    auth = initializeAuth(firebaseApp, {
+      persistence: getReactNativePersistence(AsyncStorage),
+    });
+  }
+  
   const firestore = getFirestore(firebaseApp);
   const storage = getStorage(firebaseApp);
 

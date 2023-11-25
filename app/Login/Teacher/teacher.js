@@ -61,6 +61,16 @@ const Teacher = () => {
         }
     }
 
+    const autoLogin = async () => {
+        if (auth.currentUser != null && (await isTeacher(auth.currentUser.uid))) {
+            router.replace({pathname: "HomeTeacher"});
+        }
+    };
+
+    useEffect(() => {
+        autoLogin();
+    }, []);
+
     return (
         <View>
             <Text style={[styles.title, {marginTop: 16}]}>
