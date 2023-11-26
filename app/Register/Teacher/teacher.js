@@ -116,7 +116,7 @@ const Teacher = () => {
     }
 
     useEffect(() => {
-        setSubjects(["Matemática", "História", "Geografia"]);
+        setSubjects(["Matemática", "História", "Geografia", "Português", "Biologia", "Física", "Química", "Artes", "Educação Física", "Inglês", "Filosofia", "Sociologia"]);
     }, [])
 
     const validateInputAndAdvance = (page) => {

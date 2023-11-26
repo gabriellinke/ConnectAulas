@@ -59,7 +59,7 @@ const Communities = () => {
   const communities = useCommunities(filterSubject);
 
   useEffect(() => {
-    setSubjects(["Matemática", "História", "Geografia"]);
+    setSubjects(["Matemática", "História", "Geografia", "Português", "Biologia", "Física", "Química", "Artes", "Educação Física", "Inglês", "Filosofia", "Sociologia"]);
   }, [])
 
   const LogoutButton = () => {

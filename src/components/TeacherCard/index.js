@@ -56,7 +56,7 @@ const useIsTeacherFavorited = (studentUid, teacherUid) => {
   return isFavorited;
 };
 
-const TeacherCard = ({ id, name, subject, biography, hourlyRate, imageUrl, phoneNumber, availableTimes, enableQuizButton = false }) => {
+const TeacherCard = ({ id, name, subject, biography, hourlyRate, photoUrl, phoneNumber, availableTimes, enableQuizButton = false }) => {
   const firestore = useFirestore();
   const auth = useAuth();
 
@@ -93,7 +93,7 @@ const TeacherCard = ({ id, name, subject, biography, hourlyRate, imageUrl, phone
       <View style={styles.profile}>
         <Image 
           style={styles.avatar}
-          source={{uri: imageUrl}}
+          source={{uri: photoUrl}}
         />
 
         <View style={styles.profileInfo}>

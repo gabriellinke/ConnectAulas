@@ -89,7 +89,7 @@ const Favorites = () => {
                 subject={teacher.subject}
                 biography={teacher.biography}
                 hourlyRate={teacher.hourlyRate}
-                imageUrl={teacher.imageUrl}
+                photoUrl={teacher.photoUrl}
                 phoneNumber={teacher.phoneNumber}
                 availableTimes={teacher.availableTimes}
                 enableQuizButton

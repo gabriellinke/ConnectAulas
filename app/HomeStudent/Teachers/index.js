@@ -81,7 +81,7 @@ const Teacher = () => {
   const teachers = useFetchTeachers(filterSubject, filterWeekDay, filterTime);
 
   useEffect(() => {
-    setSubjects(["Matemática", "História", "Geografia", "Código penal"]);
+    setSubjects(["Matemática", "História", "Geografia", "Português", "Biologia", "Física", "Química", "Artes", "Educação Física", "Inglês", "Filosofia", "Sociologia"]);
   }, [])
 
   const LogoutButton = () => {
@@ -184,6 +184,7 @@ const Teacher = () => {
       >
         {teachers.length > 0 ? (
           teachers.map((teacher, index) => {
+            console.log(teacher.photoUrl);
             return (
               <TeacherCard
                 id={teacher.id}

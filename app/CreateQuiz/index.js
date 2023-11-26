@@ -56,12 +56,27 @@ const CreateQuiz = () => {
       title,
       text,
       choices: [choiceA, choiceB, choiceC, choiceD],
-      answer: 0,
+      answer: mapAnswerToIndex(answer),
       subject,
       teacherId,
     });
 
     router.back();
+  }
+
+  function mapAnswerToIndex(valor) {
+    switch (valor) {
+      case 'A':
+        return 0;
+      case 'B':
+        return 1;
+      case 'C':
+        return 2;
+      case 'D':
+        return 3;
+      default:
+        return -1;
+    }
   }
 
   const validateInputAndAdvance = (page) => {
