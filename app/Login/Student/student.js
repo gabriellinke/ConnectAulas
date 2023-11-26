@@ -40,7 +40,7 @@ const Student = () => {
 
             try {
                 if (!auth.currentUser || !(await isStudent(auth.currentUser.uid))) {
-                    ToastAndroid.show("Usuário não é professor", ToastAndroid.LONG);
+                    ToastAndroid.show("Usuário não é aluno", ToastAndroid.LONG);
                     await auth.signOut();
                     return;
                 }

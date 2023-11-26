@@ -42,6 +42,7 @@ const Teacher = () => {
                 if (!auth.currentUser || !(await isTeacher(auth.currentUser.uid))) {
                     ToastAndroid.show("Usuário não é professor", ToastAndroid.LONG);
                     await auth.signOut();
+                    return;
                 }
             }
             catch {
