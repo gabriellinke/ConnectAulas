@@ -8,7 +8,19 @@
       "expo-router",
       "expo-camera"
     ],
-    "name": "dispositivos-moveis",
-    "slug": "dispositivos-moveis"
+    "name": "ConnectAulas",
+    "slug": "connectaulas",
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "6b853d6d-4d78-4273-aa12-5a6a0c20aaf4"
+      }
+    },
+    "owner": "gabriellinke",
+    "android": {
+      "package": "com.gabriellinke.connectaulas"
+    }
   }
 }
