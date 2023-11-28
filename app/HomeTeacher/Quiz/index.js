@@ -3,44 +3,97 @@ import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import * as Colors from '../../../src/styles/colors.js'
 import { Stack, router } from "expo-router";
+import { doc, deleteDoc, updateDoc, onSnapshot, arrayRemove, Timestamp } from 'firebase/firestore';
+import { useAuth, useFirestore } from 'reactfire';
 
 import HeaderTitle from '../../../src/components/HeaderTitle';
 import QuizCard from '../../../src/components/QuizCardAdmin';
 import NoRecords from '../../../src/components/NoRecords/index.js';
 
 import styles from '../styles';
-import { useAuth } from 'reactfire';
 
-const Quiz = () => {
-  const [quizzes, setQuizzes] = useState([]);
-  const auth = useAuth();
+const useRecentTeacherQuestions = (teacherId) => {
+  const firestore = useFirestore();
+  const [recentQuestions, setRecentQuestions] = useState([]);
 
   useEffect(() => {
-    //TODO: Get teacher quizzes from firebase
-    setQuizzes([
-      {
-        id: 1,
-        title: "Título da questão",
-        subject: "Conteúdo",
-        text: "Essa é uma questão que poderia estar no quiz de algum professor. Abaixo está o enunciado mais detalhado. Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
-        choices: ["Alternativa A", "Alternativa B", "Alternativa C", "Alternativa D"],
-        answer: 0,
-      },
-      {
-        id: 2,
-        title: "Título da questão 2",
-        subject: "Conteúdo diferente",
-        text: "Essa é uma questão que poderia estar no quiz de algum professor. Abaixo está o enunciado mais detalhado. Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
-        choices: ["Alternativa A", "Alternativa B", "Alternativa C", "Alternativa D"],
-        answer: 3,
-      }
-    ])
-  }, [])
+    const teacherDocRef = doc(firestore, `teachers/${teacherId}`);
+    let questionUnsubscribeFunctions = [];
 
-  const deleteQuiz = (id) => {
-    // TODO: delete quiz from firebase
-    console.log("Delete id: ", id);
-  }
+    const updateQuestionListeners = (questionRefs) => {
+      questionUnsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+      questionUnsubscribeFunctions = [];
+
+      questionRefs.forEach(ref => {
+        const unsubscribe = onSnapshot(ref, (questionDoc) => {
+          if (questionDoc.exists()) {
+            const questionData = questionDoc.data();
+            const currentTime = Timestamp.now();
+            const twentyFourHoursAgo = new Timestamp(currentTime.seconds - 86400, currentTime.nanoseconds);
+
+            if (questionData.createdAt && questionData.createdAt.toDate() > twentyFourHoursAgo.toDate()) {
+              setRecentQuestions(prevQuestions => {
+                const existingIndex = prevQuestions.findIndex(q => q.id === questionDoc.id);
+                if (existingIndex > -1) {
+                  return prevQuestions.map((q, index) => index === existingIndex ? { id: questionDoc.id, ...questionData } : q);
+                } else {
+                  return [...prevQuestions, { id: questionDoc.id, ...questionData }];
+                }
+              });
+            } else {
+              setRecentQuestions(prevQuestions => prevQuestions.filter(q => q.id !== questionDoc.id));
+            }
+          } else {
+            setRecentQuestions(prevQuestions => prevQuestions.filter(q => q.id !== questionDoc.id));
+          }
+        });
+
+        questionUnsubscribeFunctions.push(unsubscribe);
+      });
+    };
+
+    const teacherUnsubscribe = onSnapshot(teacherDocRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const teacherData = docSnapshot.data();
+        const questionRefs = teacherData?.questions || [];
+        updateQuestionListeners(questionRefs);
+      }
+    });
+
+    return () => {
+      questionUnsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+      teacherUnsubscribe();
+    };
+  }, [teacherId]);
+
+  return recentQuestions;
+};
+
+const Quiz = () => {
+  const auth = useAuth();
+  const firestore = useFirestore();
+
+  const teacherId = (auth.currentUser || {}).uid;
+  const quizzes = useRecentTeacherQuestions(teacherId);
+
+  const deleteQuiz = async (id) => {
+    try {
+      const quizDocRef = doc(firestore, `questions/${id}`);
+  
+      await deleteDoc(quizDocRef);
+  
+      const teacherDocRef = doc(firestore, `teachers/${teacherId}`);
+  
+      await updateDoc(teacherDocRef, {
+        questions: arrayRemove(quizDocRef),
+      });
+  
+      console.log(`Quiz ${id} deleted successfully.`);
+    } catch (error) {
+      console.error("Error deleting quiz: ", error);
+      throw error;
+    }
+  };
 
   const CreateButton = () => {
     return (
@@ -65,7 +118,6 @@ const Quiz = () => {
     auth.signOut();
     router.push('Landing');
   }
-
 
   return (
     <View style={styles.container}>

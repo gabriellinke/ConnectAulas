@@ -1,0 +1,19 @@
+{
+    "build": {
+      "preview": {
+        "android": {
+          "buildType": "apk"
+        },
+        "env": {
+          "EXPO_PUBLIC_API_URL": "https://api.production.com",
+          "EXPO_PUBLIC_FIREBASE_API_KEY": "AIzaSyBI1fFM8qz9wAXKtpeyolICFM-5eKf_tm8",
+          "EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN": "connectaulas.firebaseapp.com",
+          "EXPO_PUBLIC_FIREBASE_PROJECT_ID": "connectaulas",
+          "EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET": "connectaulas.appspot.com",
+          "EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID": "171075602687",
+          "EXPO_PUBLIC_FIREBASE_APP_ID": "1:171075602687:web:fa712ada4ab287b27624ca"
+        },
+        "distribution": "internal"
+      }
+    }
+  }

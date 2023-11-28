@@ -20,7 +20,7 @@ const CommunityCardAdmin = ({ name, subject, description, externalUrl, deleteCal
             <View style={styles.footer}>
                 <Button
                     type='red'
-                    text='Excluir questão'
+                    text='Excluir comunidade'
                     height={56}
                     width={'100%'}
                     onPress={deleteCallback}

@@ -23,7 +23,7 @@ const Teacher = () => {
     const [name, setName] = useState("");
     const [phone, setPhone] = useState("");
     const [biography, setBiography] = useState("");
-    const [selectedSubjectIndex, setselectedSubjectIndex] = useState();
+    const [selectedSubject, setSelectedSubject] = useState();
     const [price, setPrice] = useState("");
     const [schedules, setSchedules] = useState([{weekDay: "", startTime: "", endTime: ""}]);
     
@@ -67,7 +67,7 @@ const Teacher = () => {
             phone,
             biography,
             photo,
-            subject: subjects[selectedSubjectIndex],
+            subject: selectedSubject,
             price,
             schedules
         })
@@ -89,8 +89,9 @@ const Teacher = () => {
 
             await setDoc(doc(firestore, "teachers", userCredential.user.uid), {
                 userUid: userCredential.user.uid,
+                name,
                 photoUrl,
-                subject: subjects[selectedSubjectIndex],
+                subject: selectedSubject,
                 hourlyRate: price,
                 phoneNumber: phone,
                 biography,
@@ -115,8 +116,7 @@ const Teacher = () => {
     }
 
     useEffect(() => {
-        // TODO: Pegar matérias do banco de dados
-        setSubjects(["Matemática", "História", "Geografia"]);
+        setSubjects(["Matemática", "História", "Geografia", "Português", "Biologia", "Física", "Química", "Artes", "Educação Física", "Inglês", "Filosofia", "Sociologia"]);
     }, [])
 
     const validateInputAndAdvance = (page) => {
@@ -143,7 +143,7 @@ const Teacher = () => {
                 }
                 break;
             case 4:
-                if(price === "" || subjects[setselectedSubjectIndex] === ""){
+                if(price === "" || selectedSubject === ""){
                     ToastAndroid.show('Inputs inválidos!', ToastAndroid.LONG)
                     console.log("Erro: Input não é válido");
                     return;
@@ -310,8 +310,8 @@ const Teacher = () => {
                         <CustomPicker 
                             label="Matéria"
                             options={subjects}
-                            value={selectedSubjectIndex}
-                            setValue={setselectedSubjectIndex}
+                            value={selectedSubject}
+                            setValue={setSelectedSubject}
                         />
                         <Input label="Custo da sua hora/aula (em R$)*" value={price} setValue={setPrice} placeholder="50.00" maskType="price"/>
                         <View style={[styles.buttonGroup, {marginTop: 16}]}>

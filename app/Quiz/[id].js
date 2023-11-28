@@ -1,42 +1,99 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Text, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams } from "expo-router";
+import { doc, getDoc, onSnapshot, Timestamp } from 'firebase/firestore';
+import { useFirestore } from 'reactfire';
+import NoRecords from '../../src/components/NoRecords/index.js';
 
 import HeaderTitle from '../../src/components/HeaderTitle';
 import QuizCard from '../../src/components/QuizCard';
 
 import styles from './styles';
-const Quiz = () => {
-  const [quizzes, setQuizzes] = useState([]);
-  const [teacherName, setTeacherName] = useState('');
-  const { id } = useLocalSearchParams();
+
+const useRecentTeacherQuestions = (teacherUid) => {
+  const firestore = useFirestore();
+  const [recentQuestions, setRecentQuestions] = useState([]);
 
   useEffect(() => {
-    console.log("id ", id);
+    const teacherDocRef = doc(firestore, `teachers/${teacherUid}`);
+    let questionUnsubscribeFunctions = [];
 
-    //TODO: Get teacher quizzes from firebase
-    setQuizzes([
-      {
-        id: 1,
-        title: "Título da questão",
-        subject: "Conteúdo",
-        text: "Essa é uma questão que poderia estar no quiz de algum professor. Abaixo está o enunciado mais detalhado. Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
-        choices: ["Alternativa A", "Alternativa B", "Alternativa C", "Alternativa D"],
-        answer: 0,
-      },
-      {
-        id: 2,
-        title: "Título da questão 2",
-        subject: "Conteúdo diferente",
-        text: "Essa é uma questão que poderia estar no quiz de algum professor. Abaixo está o enunciado mais detalhado. Aqui ensinamos a ver e a olhar e a ver várias situações. Ao participar desse grupo, você concede direito de uso infinito e explorativo de toda a sua vida, além de concordar com possíveis participações na TV japonesa.",
-        choices: ["Alternativa A", "Alternativa B", "Alternativa C", "Alternativa D"],
-        answer: 3,
+    const updateQuestionListeners = (questionRefs) => {
+      questionUnsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+      questionUnsubscribeFunctions = [];
+
+      questionRefs.forEach(ref => {
+        const unsubscribe = onSnapshot(ref, (questionDoc) => {
+          if (questionDoc.exists()) {
+            const questionData = questionDoc.data();
+            const currentTime = Timestamp.now();
+            const twentyFourHoursAgo = new Timestamp(currentTime.seconds - 86400, currentTime.nanoseconds);
+
+            if (questionData.createdAt && questionData.createdAt.toDate() > twentyFourHoursAgo.toDate()) {
+              setRecentQuestions(prevQuestions => {
+                const existingIndex = prevQuestions.findIndex(q => q.id === questionDoc.id);
+                if (existingIndex > -1) {
+                  return prevQuestions.map((q, index) => index === existingIndex ? { id: questionDoc.id, ...questionData } : q);
+                } else {
+                  return [...prevQuestions, { id: questionDoc.id, ...questionData }];
+                }
+              });
+            } else {
+              setRecentQuestions(prevQuestions => prevQuestions.filter(q => q.id !== questionDoc.id));
+            }
+          } else {
+            setRecentQuestions(prevQuestions => prevQuestions.filter(q => q.id !== questionDoc.id));
+          }
+        });
+
+        questionUnsubscribeFunctions.push(unsubscribe);
+      });
+    };
+
+    const teacherUnsubscribe = onSnapshot(teacherDocRef, (docSnapshot) => {
+      if (docSnapshot.exists()) {
+        const teacherData = docSnapshot.data();
+        const questionRefs = teacherData?.questions || [];
+        updateQuestionListeners(questionRefs);
       }
-    ])
+    });
 
-    // TODO: Get teacher name from firebase
-    setTeacherName('Gabriel Linke');
-  }, [])
+    return () => {
+      questionUnsubscribeFunctions.forEach(unsubscribe => unsubscribe());
+      teacherUnsubscribe();
+    };
+  }, [teacherUid]);
+
+  return recentQuestions;
+};
+
+const useTeacherName = (teacherUid) => {
+  const firestore = useFirestore();
+  const [teacherName, setTeacherName] = useState('');
+
+  useEffect(() => {
+    const teacherDocRef = doc(firestore, `teachers/${teacherUid}`);
+
+    getDoc(teacherDocRef).then((doc) => {
+      if (doc.exists()) {
+        const teacherData = doc.data();
+        setTeacherName(teacherData.name);
+      } else {
+        console.log('No such teacher!');
+      }
+    }).catch((error) => {
+      console.error("Error fetching teacher's name: ", error);
+    });
+  }, [teacherUid]);
+
+  return teacherName;
+};
+
+const Quiz = () => {
+  const { id } = useLocalSearchParams();
+
+  const quizzes = useRecentTeacherQuestions(id);
+  const teacherName = useTeacherName(id);
 
   return (
     <View style={styles.container}>
@@ -64,8 +121,7 @@ const Quiz = () => {
             )
           })
           ) : (
-            // TODO: Create something better
-            <Text>Nenhum quiz cadastrado</Text>
+            <NoRecords text={'Nenhum quiz cadastrado'} />
           )
         }
       </ScrollView>

@@ -1,27 +1,91 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Image, Text, Linking } from 'react-native';
 import { RectButton } from 'react-native-gesture-handler';
 import { MaterialCommunityIcons, Ionicons } from "@expo/vector-icons";
 import { router } from 'expo-router';
+import { doc, getDoc, updateDoc, onSnapshot, increment, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { useAuth, useFirestore } from 'reactfire';
 
 import Button from '../Button';
 import styles from './styles';
 
-const TeacherCard = ({ name, subject, biography, hourlyRate, imageUrl, phoneNumber, availableTimes, enableQuizButton = false }) => {
-  const [isFavorited, setIsFavorited] = useState(false);
 
-  const handleLinkToWhatsapp = () => {
+const toggleFavoriteTeacher = async (firestore, studentUid, teacherUid) => {
+  try {
+    const studentDocRef = doc(firestore, `students/${studentUid}`);
+    const teacherDocRef = doc(firestore, `teachers/${teacherUid}`);
+
+    const studentDoc = await getDoc(studentDocRef);
+    const studentData = studentDoc.data();
+    const currentFavorites = studentData?.favoriteTeachers || [];
+
+    const isFavorite = currentFavorites.some(ref => ref.id === teacherUid);
+
+    await updateDoc(studentDocRef, {
+      favoriteTeachers: isFavorite 
+        ? arrayRemove(teacherDocRef) 
+        : arrayUnion(teacherDocRef)
+    });
+
+    console.log(`Toggled teacher ${teacherUid} in student ${studentUid}'s favorites.`);
+  } catch (error) {
+    console.error("Error toggling favorite teacher: ", error);
+  }
+};
+
+const useIsTeacherFavorited = (studentUid, teacherUid) => {
+  const firestore = useFirestore();
+
+  const [isFavorited, setIsFavorited] = useState(false);
+  const studentDocRef = doc(firestore, `students/${studentUid}`);
+
+  useEffect(() => {
+    const unsubscribe = onSnapshot(studentDocRef, (doc) => {
+      const studentData = doc.data();
+      const favoriteTeachers = studentData?.favoriteTeachers || [];
+
+      const favorited = favoriteTeachers.some(ref => ref.id === teacherUid);
+      setIsFavorited(favorited);
+    }, (error) => {
+      console.error("Error listening to favorite status: ", error);
+    });
+
+    return () => unsubscribe();
+  }, [studentUid, teacherUid]);
+
+  return isFavorited;
+};
+
+const TeacherCard = ({ id, name, subject, biography, hourlyRate, photoUrl, phoneNumber, availableTimes, enableQuizButton = false }) => {
+  const firestore = useFirestore();
+  const auth = useAuth();
+
+  const studentId = (auth.currentUser || {}).uid;
+  const isFavorited = useIsTeacherFavorited(studentId, id);
+
+  const handleLinkToWhatsapp = async () => {
+    try {
+      const connectionsMetricsRef = doc(firestore, "metrics/connections");
+
+      await updateDoc(connectionsMetricsRef, {
+        count: increment(1),
+      });
+    
+      console.log("Connections count incremented successfully.");
+    } catch (error) {
+      console.error("Error incrementing connections count: ", error);
+      throw error;
+    }
+
     Linking.openURL(`whatsapp://send?phone=${phoneNumber}`)
   }
 
-  const handleToggleFavorite = () => {
-    setIsFavorited(!isFavorited);
+  const handleToggleFavorite = async () => {
+    await toggleFavoriteTeacher(firestore, studentId, id);
   }
 
   const openQuiz = () => {
-    // TODO: passar id do professor pra pegar os quizzes?
-    const teacherId = 35;
-    router.push(`Quiz/${teacherId}`);
+    router.push(`Quiz/${id}`);
   }
 
   return (
@@ -29,7 +93,7 @@ const TeacherCard = ({ name, subject, biography, hourlyRate, imageUrl, phoneNumb
       <View style={styles.profile}>
         <Image 
           style={styles.avatar}
-          source={{uri: imageUrl}}
+          source={{uri: photoUrl}}
         />
 
         <View style={styles.profileInfo}>
