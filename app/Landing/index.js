@@ -29,7 +29,7 @@ const useConnectionsCount = () => {
   return connectionsCount;
 };
 
-const Home = () => {
+const Landing = () => {
   const connectionsCount = useConnectionsCount();
 
   return (
@@ -66,4 +66,4 @@ const Home = () => {
     </View>
   );
 };
-export default Home;
+export default Landing;
